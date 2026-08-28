@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portofolio - Dicky Armando Dimas Setiaji</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -13,6 +15,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 antialiased selection:bg-blue-500 selection:text-white">
 
+    <!-- Navigation -->
     <nav class="fixed top-0 w-full bg-slate-900/80 backdrop-blur-md z-50 border-b border-slate-800">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
             <span class="text-xl font-bold tracking-tight text-blue-400">Dicky Armando.</span>
@@ -20,11 +23,13 @@
                 <a href="#about" class="hover:text-blue-400 transition">Tentang</a>
                 <a href="#experience" class="hover:text-blue-400 transition">Pengalaman</a>
                 <a href="#skills" class="hover:text-blue-400 transition">Keahlian</a>
+                <a href="#certificates" class="hover:text-blue-400 transition">Sertifikat</a>
                 <a href="#contact" class="hover:text-blue-400 transition">Kontak</a>
             </div>
         </div>
     </nav>
 
+    <!-- Hero / About Section -->
     <section id="about" class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
         <div class="grid md:grid-cols-3 gap-12 items-center">
             <div class="md:col-span-2 space-y-6">
@@ -46,14 +51,16 @@
                     </a>
                 </div>
             </div>
+<!-- Profile Photo (Fit & Seamless) -->
             <div class="flex justify-center">
-                <div class="relative w-64 h-64 sm:w-72 sm:h-72 rounded-2xl overflow-hidden border-2 border-slate-700 shadow-2xl bg-white">
-                    <img src="background_putih_pro_e.png" alt="Dicky Armando Dimas Setiaji" class="w-full h-full object-cover">
+                <div class="relative w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white flex items-center justify-center">
+                    <img src="background_putih_pro.png" alt="Dicky Armando Dimas Setiaji" class="w-full h-auto object-cover block">
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Metrics / Key Highlights -->
     <section class="border-y border-slate-800 bg-slate-900/50 py-10">
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
             <div>
@@ -71,12 +78,15 @@
         </div>
     </section>
 
+    <!-- Work Experience Section -->
     <section id="experience" class="py-20 px-6 max-w-6xl mx-auto">
         <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
             <i class="fas fa-briefcase text-blue-400"></i> Pengalaman Kerja
         </h2>
 
         <div class="space-y-8 border-l-2 border-slate-800 pl-6 ml-2">
+            
+            <!-- Experience 1 -->
             <div class="relative group">
                 <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-blue-500 border-4 border-slate-900"></div>
                 <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
@@ -87,17 +97,126 @@
                         </span>
                     </div>
                     <p class="text-blue-400 text-sm mb-4">PT. Kita Indonesia Plus • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2">
-                        <li>Menyusun *project roadmap* menyeluruh untuk menentukan sasaran, linimasa, serta *milestones* proyek.</li>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
+                        <li>Mengembangkan *project management roadmap* untuk menentukan sasaran proyek, linimasa, serta *milestones*.</li>
                         <li>Mengawasi seluruh fase desain, pengembangan, pengujian (QA), rilis, dan dukungan operasional perangkat lunak.</li>
                         <li>Memimpin tim lintas fungsi dalam alokasi sumber daya dan integrasi sistem bersama pihak ketiga/vendor.</li>
-                        <li>Mengelola manajemen risiko dan penanganan masalah teknis untuk menjamin kepuasan klien.</li>
+                        <li>Mengarahkan tim berisi 4 personil dalam administrasi dan optimasi infrastruktur IT kompleks.</li>
+                    </ul>
+                    <div class="border-t border-slate-700/50 pt-3 mt-3">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Dashboard Health Insurance - Monitoring Claim</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Dashboard Insurance Banking - Transaction & Claim</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Mobile Apps - Integration Biller Payment WE+ & Espay</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Mobile Apps - Integration Telemedicine WE+ & Halodoc</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience 2 -->
+            <div class="relative group">
+                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
+                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                        <h3 class="text-xl font-semibold text-white">Senior IT Product Specialist</h3>
+                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
+                            Sep 2018 - Apr 2024
+                        </span>
+                    </div>
+                    <p class="text-blue-400 text-sm mb-4">PT. Intelligent Systems Solutions • Jakarta, Indonesia</p>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
+                        <li>Mengonfigurasi dan mengelola infrastruktur server, jaringan, hardware, serta software inventaris.</li>
+                        <li>Mengembangkan solusi software *custom* untuk meningkatkan efisiensi proses bisnis dan produktivitas.</li>
+                        <li>Menyusun kebijakan IT komprehensif sesuai regulasi industri dan *best practices*.</li>
+                        <li>Negosiasi kontrak vendor untuk meningkatkan kualitas produk/layanan dan standar pengiriman.</li>
+                    </ul>
+                    <div class="border-t border-slate-700/50 pt-3 mt-3">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Personalization Card Machine NBS Tech at Bank Mandiri (2018)</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Quality Control Card Machine NBS Tech at Bank BCA (2020)</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Quality Control Card Machine NBS Tech at Bank Mandiri (2023)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience 3 -->
+            <div class="relative group">
+                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
+                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                        <h3 class="text-xl font-semibold text-white">IT Product Specialist / Systems Analyst</h3>
+                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
+                            Jul 2017 - Sep 2018
+                        </span>
+                    </div>
+                    <p class="text-blue-400 text-sm mb-4">PT. Shan Informasi Sistem • Jakarta, Indonesia</p>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
+                        <li>Mengumpulkan kebutuhan sistem (*requirement gathering*) dan melakukan *gap analysis* melalui workshop desain bersama *end-user*.</li>
+                        <li>Membuat dokumentasi teknis mendetail untuk referensi internal serta presentasi *client-facing*.</li>
+                        <li>Memberikan dukungan teknis tingkat lanjut (*advanced technical support*) untuk meminimalkan *downtime* sistem.</li>
+                    </ul>
+                    <div class="border-t border-slate-700/50 pt-3 mt-3">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System (Distribution, POS, Finance, Accounting) SISCOM at Huawei Indonesia</span>
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System SISCOM at Terra Resources</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience 4 -->
+            <div class="relative group">
+                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
+                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                        <h3 class="text-xl font-semibold text-white">Information Technology Specialist</h3>
+                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
+                            Jun 2014 - Jul 2017
+                        </span>
+                    </div>
+                    <p class="text-blue-400 text-sm mb-4">PT. Sinar Baru Electric • Jakarta, Indonesia</p>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
+                        <li>Mengotomatisasi alur kerja IT, mengelola sistem *ticketing helpdesk*, dan mengontrol ruang server serta infrastruktur jaringan nirkabel.</li>
+                        <li>Menerapkan langkah *cybersecurity* (firewall, antivirus, IDS, serta penilaian kerentanan berkala).</li>
+                        <li>Memelihara hubungan klien yang menghasilkan tingkat kepuasan hingga 98%.</li>
+                    </ul>
+                    <div class="border-t border-slate-700/50 pt-3 mt-3">
+                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System (Distribution, POS, Finance, Accounting)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience 5 -->
+            <div class="relative group">
+                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
+                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
+                        <h3 class="text-xl font-semibold text-white">IT Support Engineer</h3>
+                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
+                            Jan 2012 - Jun 2014
+                        </span>
+                    </div>
+                    <p class="text-blue-400 text-sm mb-4">CV. Maju Jaya Utama • Jakarta, Indonesia</p>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2">
+                        <li>Menginstal, mengonfigurasi, menguji, dan memelihara sistem operasi, aplikasi, serta *tool* manajemen sistem.</li>
+                        <li>Mendiagnosis dan menyelesaikan masalah perangkat keras, lunak, dan jaringan (*troubleshooting*).</li>
+                        <li>Mengelola inventaris perangkat komputer dan mendokumentasikan basis pengetahuan (*knowledge base*) teknis.</li>
                     </ul>
                 </div>
             </div>
+
         </div>
     </section>
 
+    <!-- Core Competencies Section -->
     <section id="skills" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
         <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
             <i class="fas fa-cogs text-blue-400"></i> Keahlian & Metodologi
@@ -107,23 +226,115 @@
             <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
                 <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-tasks"></i></div>
                 <h3 class="text-lg font-semibold text-white mb-2">Project Management</h3>
-                <p class="text-slate-400 text-sm">SDLC Planning, Agile/Scrum, Task Prioritization, Resource Allocation, Roadmap Development.</p>
+                <p class="text-slate-400 text-sm">SDLC Planning, Agile & Waterfall, Task Prioritization, Resource Allocation, Roadmap Development, Scrum Master.</p>
             </div>
 
             <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
                 <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-shield-alt"></i></div>
                 <h3 class="text-lg font-semibold text-white mb-2">Analisis & Risiko</h3>
-                <p class="text-slate-400 text-sm">Systems Analysis, Risk Management & Mitigation, Data Privacy Compliance, Scope Control (CR).</p>
+                <p class="text-slate-400 text-sm">Business Process Analysis, Systems Analysis, Risk Management & Mitigation, Data Analytics, Query Optimization (SQL).</p>
             </div>
 
             <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
                 <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-network-wired"></i></div>
-                <h3 class="text-lg font-semibold text-white mb-2">Integrasi & QA</h3>
-                <p class="text-slate-400 text-sm">API Integration, Technical Issue Dashboard Management, Mock Server Testing, Quality Assurance.</p>
+                <h3 class="text-lg font-semibold text-white mb-2">Integrasi & Tools</h3>
+                <p class="text-slate-400 text-sm">API Documentation, Postman, Hoppscotch, Figma, Jira, Trello, Taiga, Miro, MS SQL Server, MySQL, PostgreSQL, Cloud Management.</p>
             </div>
         </div>
     </section>
 
+    <!-- Certificates Section -->
+    <section id="certificates" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
+        <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
+            <i class="fas fa-certificate text-blue-400"></i> Sertifikasi & Lisensi
+        </h2>
+
+        <div class="grid sm:grid-cols-2 gap-6">
+            <!-- Cert 1 -->
+            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fab fa-google text-2xl text-blue-400"></i>
+                        <div>
+                            <h3 class="text-base font-semibold text-white">Google Project Management</h3>
+                            <p class="text-xs text-slate-400">Google • Coursera</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs mb-4">
+                        Professional Certificate melingkupi 7 kursus: Foundations, Initiation, Planning, Execution, Agile PM, Capstone, dan AI Job Search.
+                    </p>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
+                    <span class="text-slate-500">Jun 2025 - Present</span>
+                    <a href="https://coursera.org/verify/profession-cert/J671E12RI66J" target="_blank" class="text-blue-400 hover:underline flex items-center gap-1">
+                        Verifikasi <i class="fas fa-external-link-alt text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cert 2 -->
+            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fab fa-aws text-2xl text-amber-400"></i>
+                        <div>
+                            <h3 class="text-base font-semibold text-white">Generative AI Essentials on AWS</h3>
+                            <p class="text-xs text-slate-400">Amazon Web Services (AWS)</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs mb-4">
+                        Pemahaman dasar konsep AI Generatif, model bahasa besar, dan penerapannya pada infrastruktur cloud AWS (360 Menit).
+                    </p>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
+                    <span class="text-slate-500">Nov 2025</span>
+                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Selesai</span>
+                </div>
+            </div>
+
+            <!-- Cert 3 -->
+            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fas fa-cloud text-2xl text-orange-400"></i>
+                        <div>
+                            <h3 class="text-base font-semibold text-white">Big Data ACLD25</h3>
+                            <p class="text-xs text-slate-400">Alibaba Cloud DataWorks</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs mb-4">
+                        Sertifikasi pengolahan dan analisis data skala besar menggunakan platform Alibaba Cloud DataWorks.
+                    </p>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
+                    <span class="text-slate-500">Mei 2023 - Mei 2026</span>
+                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Aktif</span>
+                </div>
+            </div>
+
+            <!-- Cert 4 -->
+            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <i class="fas fa-laptop-code text-2xl text-cyan-400"></i>
+                        <div>
+                            <h3 class="text-base font-semibold text-white">Data Analyst (Professional Academy)</h3>
+                            <p class="text-xs text-slate-400">Digital Talent Scholarship - KOMINFO</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs mb-4">
+                        Program pelatihan kompetensi analisis data nasional dari Kementerian Komunikasi dan Informatika RI.
+                    </p>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
+                    <span class="text-slate-500">Apr 2024</span>
+                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Selesai</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
     <section id="contact" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
         <div class="bg-gradient-to-r from-blue-900/30 to-slate-800/40 rounded-2xl p-8 sm:p-12 border border-slate-700/50 text-center">
             <h2 class="text-3xl font-bold text-white mb-4">Mari Bekerja Sama</h2>
@@ -142,6 +353,7 @@
         </div>
     </section>
 
+    <!-- Footer -->
     <footer class="py-8 text-center text-xs text-slate-500 border-t border-slate-800">
         <p>© 2026 Dicky Armando Dimas Setiaji. All rights reserved.</p>
     </footer>
