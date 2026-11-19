@@ -285,9 +285,10 @@
           client_id: 'CL-001',
           tanggal_muat: '2026-11-18',
           berat_muat_est: 18500,
+          harga_per_kg: 800,
           lokasi_pengambilan: 'Kawasan Industri Jababeka II, Cikarang',
           lokasi_tujuan: 'Gudang Distribusi Margomulyo, Surabaya',
-          nominal_est: 14500000,
+          nominal_est: 14800000,
           status: 'Completed'
         },
         {
@@ -295,9 +296,10 @@
           client_id: 'CL-002',
           tanggal_muat: '2026-11-19',
           berat_muat_est: 19500,
+          harga_per_kg: 650,
           lokasi_pengambilan: 'Pabrik Baja Cilegon, Banten',
           lokasi_tujuan: 'Kawasan Industri Terboyo, Semarang',
-          nominal_est: 12000000,
+          nominal_est: 12675000,
           status: 'In Transit'
         },
         {
@@ -305,6 +307,7 @@
           client_id: 'CL-003',
           tanggal_muat: '2026-11-20',
           berat_muat_est: 12000,
+          harga_per_kg: 625,
           lokasi_pengambilan: 'Gudang Pangan Karawang Timur',
           lokasi_tujuan: 'Depo Logistik Gedebage, Bandung',
           nominal_est: 7500000,
@@ -312,7 +315,7 @@
         }
       ],
 
-      // 2 & 3. Surat Jalan (SJ) + Uang Jalan (UJ) + Driver Change Log
+      // 2. Surat Jalan (SJ) & 3. Uang Jalan (UJ)
       suratJalans: [
         {
           sj_id: 'SJ-2026-001',
@@ -323,7 +326,7 @@
           tanggal_muat_akt: '2026-11-18',
           berat_muat_akt: 18500,
           uj_id: 'UJ-2026-001',
-          uang_jalan: 4500000,
+          uang_jalan: 5200000,
           status: 'Delivered',
           riwayat_sopir: []
         },
@@ -336,14 +339,14 @@
           tanggal_muat_akt: '2026-11-19',
           berat_muat_akt: 19500,
           uj_id: 'UJ-2026-002',
-          uang_jalan: 3800000,
+          uang_jalan: 4750000,
           status: 'In Transit',
           riwayat_sopir: [
             {
-              old_sopir: 'Dedi Kurniawan (SP-004)',
+              old_sopir: 'Agus Setiawan (SP-003)',
               new_sopir: 'Budi Santoso (SP-001)',
-              timestamp: '2026-11-19 08:45 WIB',
-              reason: 'Pergantian shift jarak jauh di Rest Area KM 57 Cikampek',
+              timestamp: '2026-11-19 10:15 WIB',
+              reason: 'Pergantian shift jarak jauh di titik transit Cirebon',
               updated_by: 'Admin'
             }
           ]
@@ -356,12 +359,12 @@
           tb_id: 'TB-2026-001',
           sj_id: 'SJ-2026-001',
           tanggal_bongkar: '2026-11-19',
-          berat_bongkar: 18460,
-          selisih_barang: 40
+          berat_bongkar: 18440,
+          selisih_barang: 60
         }
       ],
 
-      // 5. Sales Invoice (SI)
+      // 5. Sales Invoice (SI) — Piutang Client
       salesInvoices: [
         {
           si_id: 'SI-2026-001',
@@ -369,32 +372,32 @@
           sr_id: 'SR-2026-001',
           client_id: 'CL-001',
           tanggal_invoice: '2026-11-19',
-          total_tagihan: 14500000,
-          potong_deposit: 14500000,
+          total_tagihan: 14800000,
+          potong_deposit: 14800000,
           piutang_client: 0,
           status: 'Paid (via Deposit)'
         },
         {
-          si_id: 'SI-2026-002',
+          si_id: 'SI-2026-000',
           tb_id: 'TB-2026-000',
           sr_id: 'SR-2026-000',
           client_id: 'CL-002',
-          tanggal_invoice: '2026-11-14',
+          tanggal_invoice: '2026-11-12',
           total_tagihan: 18500000,
-          potong_deposit: 5000000,
-          piutang_client: 13500000,
+          potong_deposit: 10000000,
+          piutang_client: 8500000,
           status: 'Unpaid (Piutang)'
         }
       ],
 
-      // 6. Purchase Invoice (PI)
+      // 6. Purchase Invoice (PI) — Hutang ke Ekspedisi
       purchaseInvoices: [
         {
           pi_id: 'PI-2026-001',
           sj_id: 'SJ-2026-001',
           ekspedisi_id: 'EKS-01',
-          tanggal_pi: '2026-11-19',
-          hutang_ekspedisi: 9800000,
+          tanggal_pi: '2026-11-18',
+          hutang_ekspedisi: 11200000,
           tb_verified: true,
           status: 'Ready to Pay (Unpaid)'
         },
@@ -403,31 +406,63 @@
           sj_id: 'SJ-2026-002',
           ekspedisi_id: 'EKS-02',
           tanggal_pi: '2026-11-19',
-          hutang_ekspedisi: 8400000,
+          hutang_ekspedisi: 9800000,
           tb_verified: false,
           status: 'Pending TB'
         }
       ],
 
-      // Mutasi Deposit Client
+      // Riwayat Mutasi Deposit Client
       depositLogs: [
-        { id: 'DEP-001', tanggal: '2026-11-18 09:15', client_id: 'CL-001', tipe: 'Pemotongan SR', referensi: 'SR-2026-001', nominal: -14500000, saldo_akhir: 45000000 },
-        { id: 'DEP-002', tanggal: '2026-11-19 10:20', client_id: 'CL-002', tipe: 'Pemotongan SR', referensi: 'SR-2026-002', nominal: -12000000, saldo_akhir: 28500000 },
-        { id: 'DEP-003', tanggal: '2026-11-19 14:00', client_id: 'CL-003', tipe: 'Pemotongan SR', referensi: 'SR-2026-003', nominal: -7500000, saldo_akhir: 12000000 }
+        {
+          id: 'DEP-001',
+          tanggal: '2026-11-19 09:00',
+          client_id: 'CL-003',
+          tipe: 'Pemotongan SR',
+          referensi: 'SR-2026-003',
+          nominal: -7500000,
+          saldo_akhir: 12000000
+        },
+        {
+          id: 'DEP-002',
+          tanggal: '2026-11-18 14:20',
+          client_id: 'CL-002',
+          tipe: 'Pemotongan SR',
+          referensi: 'SR-2026-002',
+          nominal: -12675000,
+          saldo_akhir: 28500000
+        },
+        {
+          id: 'DEP-003',
+          tanggal: '2026-11-17 11:10',
+          client_id: 'CL-001',
+          tipe: 'Top-Up',
+          referensi: 'Transfer Mandiri #8821',
+          nominal: 30000000,
+          saldo_akhir: 59800000
+        },
+        {
+          id: 'DEP-004',
+          tanggal: '2026-11-18 08:30',
+          client_id: 'CL-001',
+          tipe: 'Pemotongan SR',
+          referensi: 'SR-2026-001',
+          nominal: -14800000,
+          saldo_akhir: 45000000
+        }
       ]
     };
 
-    let charts = {};
+    let chartInstances = {};
 
     // =========================================================================
-    // 2. FORMATTERS & UTILITY HELPERS
+    // 2. HELPER & FORMATTING UTILITIES
     // =========================================================================
     function formatIDR(amount) {
       return new Intl.NumberFormat('id-ID', {
         style: 'currency',
         currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        minimumFractionDigits: 0
       }).format(amount || 0);
     }
 
@@ -440,9 +475,14 @@
       return c ? c.nama_client : clientId;
     }
 
+    function getExpeditionName(ekspId) {
+      const e = state.expeditions.find(item => item.ekspedisi_id === ekspId);
+      return e ? e.nama_ekspedisi : ekspId;
+    }
+
     function getVehicleLabel(mobilId) {
       const v = state.vehicles.find(item => item.mobil_id === mobilId);
-      return v ? `${v.nama_mobil} (${v.no_mobil})` : mobilId;
+      return v ? `${v.no_mobil} (${v.nama_mobil})` : mobilId;
     }
 
     function getDriverName(sopirId) {
@@ -450,72 +490,49 @@
       return d ? `${d.nama_sopir} (${d.sopir_id})` : sopirId;
     }
 
-    function getExpeditionName(eksId) {
-      const e = state.expeditions.find(item => item.ekspedisi_id === eksId);
-      return e ? e.nama_ekspedisi : eksId;
-    }
-
     function showToast(title, message, type = 'success') {
       const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
       const colors = {
-        success: 'bg-emerald-950 border-emerald-500 text-emerald-50',
-        error: 'bg-rose-950 border-rose-500 text-rose-50',
-        warning: 'bg-amber-950 border-amber-500 text-amber-50',
-        info: 'bg-slate-900 border-sky-500 text-slate-50'
+        success: 'bg-slate-900 border-emerald-500 text-white',
+        error: 'bg-rose-950 border-rose-500 text-white',
+        warning: 'bg-amber-950 border-amber-500 text-white'
       };
-      const iconColor = {
+      const badgeColor = {
         success: 'text-emerald-400',
         error: 'text-rose-400',
-        warning: 'text-amber-400',
-        info: 'text-sky-400'
+        warning: 'text-amber-400'
       };
-      toast.className = `pointer-events-auto p-4 rounded-2xl border-l-4 shadow-xl transition-all duration-300 transform translate-y-0 ${colors[type] || colors.info}`;
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto border-l-4 ${colors[type]} p-4 rounded-xl shadow-xl transition-all duration-300`;
       toast.innerHTML = `
-        <div class="flex items-start gap-3">
-          <div class="${iconColor[type]} mt-0.5">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              ${type === 'error'
-                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />'
-                : '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />'}
-            </svg>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-wider ${badgeColor[type]}">${title}</p>
+            <p class="text-xs text-slate-200 mt-1 leading-relaxed">${message}</p>
           </div>
-          <div class="flex-1 text-xs">
-            <p class="font-bold text-sm mb-0.5">${title}</p>
-            <p class="opacity-90 leading-relaxed">${message}</p>
-          </div>
+          <button onclick="this.parentElement.parentElement.remove()" class="text-slate-400 hover:text-white text-xs font-bold">✕</button>
         </div>
       `;
       container.appendChild(toast);
       setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(20px)';
-        setTimeout(() => toast.remove(), 300);
-      }, 4200);
-    }
-
-    function toggleSidebar() {
-      const sb = document.getElementById('sidebar');
-      const bd = document.getElementById('sidebar-backdrop');
-      sb.classList.toggle('-translate-x-full');
-      bd.classList.toggle('hidden');
+        if (toast.parentElement) toast.remove();
+      }, 4500);
     }
 
     // =========================================================================
-    // 3. ROLE-BASED ACCESS CONTROL & HIERARCHICAL NAVIGATION
+    // 3. NAVIGATION TREE (HEADER -> SUBNAVIGATION) & ROLE SWITCHING
     // =========================================================================
     const navigationTree = [
       {
         id: 'dashboard',
         label: 'Executive Dashboard',
-        badge: 'Owner Only',
-        roles: ['Owner', 'Admin'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />',
+        badge: 'Owner',
+        roles: ['Owner', 'Admin', 'Client'],
         subItems: [
-          { id: 'overview', label: 'Overview & KPI', roles: ['Owner', 'Admin'] },
-          { id: 'fleet', label: 'Monitoring Mobil', roles: ['Owner', 'Admin'] },
-          { id: 'deposit_rep', label: 'Report Deposit Client', roles: ['Owner', 'Admin'] },
-          { id: 'ar_ap_rep', label: 'Report Piutang & Hutang', roles: ['Owner', 'Admin'] }
+          { id: 'overview', label: 'Overview & KPI' },
+          { id: 'armada', label: 'Monitoring Mobil' },
+          { id: 'keuangan-owner', label: 'Deposit, Piutang & Hutang' }
         ]
       },
       {
@@ -523,21 +540,19 @@
         label: 'Sales Request',
         badge: 'SR',
         roles: ['Owner', 'Admin', 'Client'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />',
         subItems: [
-          { id: 'create', label: 'Create', roles: ['Owner', 'Admin', 'Client'] },
-          { id: 'list', label: 'List', roles: ['Owner', 'Admin', 'Client'] }
+          { id: 'create', label: 'Create' },
+          { id: 'list', label: 'List' }
         ]
       },
       {
         id: 'sj',
         label: 'Surat Jalan & Uang Jalan',
-        badge: 'SJ / UJ',
+        badge: 'SJ+UJ',
         roles: ['Owner', 'Admin'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />',
         subItems: [
-          { id: 'create', label: 'Create', roles: ['Owner', 'Admin'] },
-          { id: 'list', label: 'List', roles: ['Owner', 'Admin'] }
+          { id: 'create', label: 'Create' },
+          { id: 'list', label: 'List' }
         ]
       },
       {
@@ -545,216 +560,180 @@
         label: 'Terima Barang',
         badge: 'TB',
         roles: ['Owner', 'Admin'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />',
         subItems: [
-          { id: 'create', label: 'Create', roles: ['Owner', 'Admin'] },
-          { id: 'list', label: 'List', roles: ['Owner', 'Admin'] }
+          { id: 'create', label: 'Create' },
+          { id: 'list', label: 'List' }
         ]
       },
       {
         id: 'finance',
         label: 'Finance & Billing',
-        badge: 'SI / PI',
+        badge: 'SI/PI',
         roles: ['Owner', 'Admin', 'Client'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />',
         subItems: [
-          { id: 'si', label: 'Sales Invoice (SI)', roles: ['Owner', 'Admin', 'Client'] },
-          { id: 'pi', label: 'Purchase Invoice (PI)', roles: ['Owner', 'Admin'] },
-          { id: 'deposit', label: 'Monitoring Deposit', roles: ['Owner', 'Admin', 'Client'] }
+          { id: 'si', label: 'Sales Invoice (SI)' },
+          { id: 'pi', label: 'Purchase Invoice (PI)', hideForClient: true },
+          { id: 'deposit', label: 'Monitoring Deposit' }
         ]
       },
       {
         id: 'master',
         label: 'Master Data',
-        badge: 'Master',
+        badge: 'Data',
         roles: ['Owner', 'Admin'],
-        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />',
         subItems: [
-          { id: 'mobil', label: 'Master Mobil', roles: ['Owner', 'Admin'] },
-          { id: 'sopir', label: 'Master Sopir', roles: ['Owner', 'Admin'] }
+          { id: 'mobil', label: 'Master Mobil' },
+          { id: 'sopir', label: 'Master Sopir' }
         ]
       }
     ];
 
-    function switchRole(role) {
-      state.currentRole = role;
-      if (role === 'Client') {
-        state.activeMenu = 'sr';
-        state.activeSubMenu = 'create';
-        state.expandedMenus.sr = true;
-      } else if (role === 'Admin' && state.activeMenu === 'dashboard') {
-        state.activeMenu = 'sr';
-        state.activeSubMenu = 'list';
-        state.expandedMenus.sr = true;
-      } else if (role === 'Owner') {
-        state.activeMenu = 'dashboard';
-        state.activeSubMenu = 'overview';
-        state.expandedMenus.dashboard = true;
-      }
-      renderApp();
-      showToast(`Mode Peran: ${role}`, `Tampilan navigasi & hak akses disesuaikan untuk ${role}.`, 'info');
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      sidebar.classList.toggle('-translate-x-full');
+      backdrop.classList.toggle('hidden');
     }
 
     function toggleMenuAccordion(menuId) {
-      const wasExpanded = state.expandedMenus[menuId];
-      state.expandedMenus[menuId] = !wasExpanded;
-
-      // Jika menu dibuka dan belum aktif, otomatis aktifkan sub-menu pertama yang diizinkan
-      if (!wasExpanded && state.activeMenu !== menuId) {
-        const menuObj = navigationTree.find(m => m.id === menuId);
-        if (menuObj) {
-          const allowedSubs = menuObj.subItems.filter(s => s.roles.includes(state.currentRole));
-          if (allowedSubs.length > 0) {
-            state.activeMenu = menuId;
-            state.activeSubMenu = allowedSubs[0].id;
-          }
-        }
-      }
-      renderApp();
+      state.expandedMenus[menuId] = !state.expandedMenus[menuId];
+      renderNavigation();
     }
 
-    function navigateTo(menuId, subMenuId = null) {
-      const menuObj = navigationTree.find(m => m.id === menuId);
-      if (!menuObj) return;
-
-      const allowedSubs = menuObj.subItems.filter(s => s.roles.includes(state.currentRole));
+    function navigateTo(menuId, subMenuId) {
       state.activeMenu = menuId;
       state.expandedMenus[menuId] = true;
 
-      if (subMenuId && allowedSubs.some(s => s.id === subMenuId)) {
-        state.activeSubMenu = subMenuId;
-      } else if (allowedSubs.length > 0) {
-        state.activeSubMenu = allowedSubs[0].id;
+      const menuDef = navigationTree.find(m => m.id === menuId);
+      if (menuDef) {
+        const validSubs = menuDef.subItems.filter(s => !(state.currentRole === 'Client' && s.hideForClient));
+        if (subMenuId && validSubs.some(s => s.id === subMenuId)) {
+          state.activeSubMenu = subMenuId;
+        } else if (validSubs.length > 0) {
+          state.activeSubMenu = validSubs[0].id;
+        }
       }
 
-      if (window.innerWidth < 1024) {
-        document.getElementById('sidebar').classList.add('-translate-x-full');
-        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      // Close mobile sidebar after click
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (window.innerWidth < 1024 && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
       }
+
       renderApp();
     }
 
-    function renderNavigation() {
-      // Update topbar role buttons
-      ['Owner', 'Admin', 'Client'].forEach(r => {
-        const btn = document.getElementById(`role-btn-${r}`);
-        if (r === state.currentRole) {
-          btn.className = 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-amber-400 shadow-xs transition-all';
-        } else {
-          btn.className = 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
-        }
-      });
-
-      // Update sidebar identity
-      const roleNames = {
+    function switchRole(role) {
+      state.currentRole = role;
+      const userMap = {
         Owner: 'Hendra Wijaya (Owner)',
-        Admin: 'Siti Rahmawati (Dispatcher)',
+        Admin: 'Dimas Pratama (Admin / Dispatcher)',
         Client: 'Rina Marlina (PT Sumber Makmur Jaya)'
       };
-      document.getElementById('sidebar-role-badge').textContent = state.currentRole;
-      document.getElementById('sidebar-user-name').textContent = roleNames[state.currentRole];
+      document.getElementById('sidebar-role-badge').textContent = role;
+      document.getElementById('sidebar-user-name').textContent = userMap[role];
 
-      // Build Hierarchical Accordion Sidebar
-      const nav = document.getElementById('sidebar-nav');
-      nav.innerHTML = navigationTree
-        .filter(item => item.roles.includes(state.currentRole))
-        .map(item => {
-          const isMenuActive = state.activeMenu === item.id;
-          const isExpanded = !!state.expandedMenus[item.id];
-          const isLocked = item.id === 'dashboard' && state.currentRole !== 'Owner';
-          const allowedSubs = item.subItems.filter(s => s.roles.includes(state.currentRole));
-
-          return `
-            <div class="space-y-1">
-              <!-- Parent Header Button -->
-              <button onclick="toggleMenuAccordion('${item.id}')"
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  isMenuActive
-                    ? 'bg-slate-800 text-white border border-slate-700/80 shadow-xs'
-                    : 'text-slate-300 hover:bg-slate-800/60 hover:text-white'
-                }">
-                <div class="flex items-center gap-3 min-w-0">
-                  <svg class="w-5 h-5 shrink-0 ${isMenuActive ? 'text-amber-400' : 'text-slate-400'}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    ${item.icon}
-                  </svg>
-                  <span class="truncate">${item.label}</span>
-                </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  ${
-                    isLocked
-                      ? '<span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30"><svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>Locked</span>'
-                      : `<span class="text-[10px] font-bold px-2 py-0.5 rounded ${isMenuActive ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-400'}">${item.badge}</span>`
-                  }
-                  <svg class="w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-amber-400' : ''}" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </div>
-              </button>
-
-              <!-- Collapsible Subnavigation List -->
-              ${isExpanded ? `
-                <div class="ml-5 pl-3 border-l border-slate-700/80 space-y-1 py-1">
-                  ${allowedSubs.map(sub => {
-                    const isSubActive = isMenuActive && state.activeSubMenu === sub.id;
-                    return `
-                      <button onclick="navigateTo('${item.id}', '${sub.id}')"
-                        class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                          isSubActive
-                            ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
-                            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                        }">
-                        <span class="w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-slate-950' : 'bg-slate-500'}"></span>
-                        <span class="truncate">${sub.label}</span>
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-              ` : ''}
-            </div>
-          `;
-        })
-        .join('');
-
-      // Render Breadcrumb & Contextual Sub-Navigation Bar in Top Header
-      const currentMenuObj = navigationTree.find(m => m.id === state.activeMenu) || navigationTree[0];
-      const allowedSubItems = currentMenuObj.subItems.filter(s => s.roles.includes(state.currentRole));
-      const currentSubObj = allowedSubItems.find(s => s.id === state.activeSubMenu) || allowedSubItems[0];
-
-      const breadcrumbEl = document.getElementById('page-breadcrumb');
-      if (breadcrumbEl && currentMenuObj && currentSubObj) {
-        breadcrumbEl.innerHTML = `
-          <span>${currentMenuObj.label}</span>
-          <span class="text-slate-300">/</span>
-          <span class="text-slate-600">${currentSubObj.label}</span>
-        `;
-      }
-
-      const subnavEl = document.getElementById('topbar-subnav');
-      if (subnavEl && currentMenuObj) {
-        subnavEl.innerHTML = `
-          <div class="flex items-center gap-1.5">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-2 hidden sm:inline">${currentMenuObj.label}:</span>
-            ${allowedSubItems.map(sub => {
-              const isActive = state.activeSubMenu === sub.id;
-              return `
-                <button onclick="navigateTo('${currentMenuObj.id}', '${sub.id}')"
-                  class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-slate-900 text-amber-400 shadow-xs'
-                      : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:text-slate-900'
-                  }">
-                  ${sub.label}
-                </button>
-              `;
-            }).join('')}
-          </div>
-          <span class="text-[11px] text-slate-400 hidden md:inline">Gunakan sub-navigasi untuk berpindah tampilan</span>
-        `;
+      if (role === 'Owner') {
+        navigateTo('dashboard', 'overview');
+      } else if (role === 'Admin') {
+        navigateTo('sr', 'list');
+      } else {
+        navigateTo('sr', 'create');
       }
     }
 
+    function renderNavigation() {
+      // Update topbar role switcher button states
+      ['Owner', 'Admin', 'Client'].forEach(r => {
+        const btn = document.getElementById(`role-btn-${r}`);
+        if (btn) {
+          btn.className = r === state.currentRole
+            ? 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-extrabold bg-slate-900 text-amber-400 shadow-xs transition-all'
+            : 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition-all';
+        }
+      });
+
+      const navContainer = document.getElementById('sidebar-nav');
+      const visibleMenus = navigationTree.filter(m => m.roles.includes(state.currentRole));
+
+      navContainer.innerHTML = visibleMenus.map(menu => {
+        const isActiveMenu = state.activeMenu === menu.id;
+        const isExpanded = !!state.expandedMenus[menu.id];
+        const validSubs = menu.subItems.filter(s => !(state.currentRole === 'Client' && s.hideForClient));
+
+        return `
+          <div class="rounded-xl overflow-hidden ${isActiveMenu ? 'bg-slate-800/70' : ''}">
+            <button onclick="toggleMenuAccordion('${menu.id}')"
+              class="w-full flex items-center justify-between px-3.5 py-2.5 text-left text-xs font-bold transition-colors ${
+                isActiveMenu ? 'text-amber-400' : 'text-slate-300 hover:text-white hover:bg-slate-800/40'
+              }">
+              <span class="flex items-center gap-2">
+                <span>${menu.label}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400 font-semibold">${menu.badge}</span>
+              </span>
+              <svg class="w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+
+            ${isExpanded ? `
+              <div class="pl-4 pr-2 pb-2 space-y-1 border-l border-slate-700 ml-4">
+                ${validSubs.map(sub => {
+                  const isSubActive = isActiveMenu && state.activeSubMenu === sub.id;
+                  return `
+                    <button onclick="navigateTo('${menu.id}', '${sub.id}')"
+                      class="w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-2 ${
+                        isSubActive
+                          ? 'bg-amber-500 text-slate-950 font-extrabold shadow-xs'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                      }">
+                      <span class="w-1.5 h-1.5 rounded-full ${isSubActive ? 'bg-slate-950' : 'bg-slate-600'}"></span>
+                      <span>${sub.label}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Render Breadcrumb & Topbar Subnavigation Bar
+      const currentMenu = navigationTree.find(m => m.id === state.activeMenu) || navigationTree[0];
+      const currentValidSubs = currentMenu.subItems.filter(s => !(state.currentRole === 'Client' && s.hideForClient));
+      const currentSub = currentValidSubs.find(s => s.id === state.activeSubMenu) || currentValidSubs[0];
+
+      document.getElementById('page-breadcrumb').innerHTML = `
+        <span>${currentMenu.label}</span>
+        <span class="text-slate-300">/</span>
+        <span class="text-slate-600">${currentSub ? currentSub.label : ''}</span>
+      `;
+
+      document.getElementById('topbar-subnav').innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-1">${currentMenu.label}:</span>
+          ${currentValidSubs.map(sub => {
+            const active = state.activeSubMenu === sub.id;
+            return `
+              <button onclick="navigateTo('${currentMenu.id}', '${sub.id}')"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                  active
+                    ? 'bg-slate-900 text-amber-400 shadow-xs'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                }">
+                ${sub.label}
+              </button>
+            `;
+          }).join('')}
+        </div>
+        <span class="text-[11px] text-slate-400 hidden sm:inline">LogiTrack ERP v1.0</span>
+      `;
+    }
+
     // =========================================================================
-    // 4. MODULE 1: EXECUTIVE REPORT DASHBOARD (EKSKLUSIF OWNER)
+    // 4. MODULE 1: EXECUTIVE REPORT DASHBOARD (KHUSUS OWNER)
     // =========================================================================
     function setDashboardPeriod(period) {
       state.dashboardPeriod = period;
@@ -762,379 +741,229 @@
     }
 
     function renderExecutiveDashboard() {
-      const sub = state.activeSubMenu || 'overview';
-      const subTitles = {
-        overview: 'Executive Report Dashboard — Overview & KPI',
-        fleet: 'Executive Dashboard — Monitoring Armada Mobil',
-        deposit_rep: 'Executive Dashboard — Report Deposit Client',
-        ar_ap_rep: 'Executive Dashboard — Report Piutang & Hutang Ekspedisi'
-      };
-      document.getElementById('page-title').textContent = subTitles[sub] || 'Executive Report Dashboard';
-
-      // RBAC Guard: Strict Owner-Only Enforcement
+      // RBAC Guard: Hanya Owner yang boleh melihat Executive Report Dashboard (FR-08.1)
       if (state.currentRole !== 'Owner') {
+        document.getElementById('page-title').textContent = 'Akses Dibatasi — Executive Dashboard';
         return `
-          <div class="bg-white rounded-2xl border border-rose-200 p-8 sm:p-12 text-center max-w-2xl mx-auto mt-6 shadow-sm">
-            <div class="w-16 h-16 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-5">
-              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-              </svg>
+          <div class="max-w-xl mx-auto my-12 bg-white p-8 rounded-2xl border border-rose-200 shadow-sm text-center space-y-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto font-extrabold text-xl">
+              !
             </div>
-            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 mb-3">Access Denied (RBAC Policy FR-08.1)</span>
-            <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Halaman Eksklusif untuk Role Owner</h2>
-            <p class="text-sm text-slate-600 leading-relaxed mb-6">
-              Sesuai kebijakan keamanan sistem (FR-08.1), seluruh sub-modul <b>Executive Dashboard</b> diisolasi secara ketat dan hanya dapat dilihat oleh pengguna dengan peran <b>Owner</b>.
+            <h2 class="text-xl font-extrabold text-slate-900">Akses Eksklusif Role Owner</h2>
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Sesuai kebijakan keamanan <b>RBAC (FR-08.1)</b>, halaman <b>Executive Report Dashboard</b> hanya dapat diakses oleh pengguna dengan peran <b>Owner</b>.
+              Saat ini Anda login sebagai <b>${state.currentRole}</b>.
             </p>
-            <button onclick="switchRole('Owner')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-sm shadow-sm">
-              Beralih ke Mode Owner Sekarang
-            </button>
+            <div class="pt-2">
+              <button onclick="switchRole('Owner')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-xs shadow-sm">
+                Beralih ke Mode Owner Sekarang
+              </button>
+            </div>
           </div>
         `;
       }
 
-      const period = state.dashboardPeriod;
-      const totalTrips = state.vehicles.reduce((sum, v) => sum + v.trips[period], 0);
-      const totalTonase = state.vehicles.reduce((sum, v) => sum + v.tonase[period], 0).toFixed(1);
+      document.getElementById('page-title').textContent = 'Executive Report Dashboard (Owner)';
+      const p = state.dashboardPeriod;
+
+      const totalTrips = state.vehicles.reduce((sum, v) => sum + (v.trips[p] || 0), 0);
+      const totalTonase = state.vehicles.reduce((sum, v) => sum + (v.tonase[p] || 0), 0);
       const totalDeposit = state.clients.reduce((sum, c) => sum + c.saldo_deposit, 0);
       const totalPiutang = state.salesInvoices.reduce((sum, si) => sum + si.piutang_client, 0);
       const totalHutang = state.purchaseInvoices
         .filter(pi => pi.status !== 'Paid')
         .reduce((sum, pi) => sum + pi.hutang_ekspedisi, 0);
 
-      const periodBarHtml = `
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
-          <div class="flex items-center gap-3">
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
-              Owner Only
-            </span>
-            <span class="text-xs sm:text-sm text-slate-600 font-medium">Filter Periode Laporan Armada: <b>${period}</b></span>
+      return `
+        <!-- Filter Periode Waktu (Daily, Weekly, Monthly, Yearly) -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div>
+            <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Filter Periode Laporan Armada</span>
+            <p class="text-xs text-slate-500">Menampilkan jumlah trip dan tonase pengiriman periode <b>${p}</b></p>
           </div>
-          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl self-start sm:self-auto">
-            ${['Daily', 'Weekly', 'Monthly', 'Yearly'].map(p => `
-              <button onclick="setDashboardPeriod('${p}')"
-                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  period === p ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+            ${['Daily', 'Weekly', 'Monthly', 'Yearly'].map(period => `
+              <button onclick="setDashboardPeriod('${period}')"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition-all ${
+                  p === period ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'
                 }">
-                ${p}
+                ${period}
               </button>
             `).join('')}
           </div>
         </div>
-      `;
 
-      const kpiCardsHtml = `
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <!-- KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pengiriman (${period})</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-2">${formatNumber(totalTrips)} <span class="text-xs font-semibold text-slate-500">Trip</span></p>
-            <p class="text-xs text-emerald-600 font-semibold mt-2">Armada aktif beroperasi</p>
+            <span class="text-xs font-bold text-slate-400 uppercase">Pengiriman (${p})</span>
+            <p class="text-2xl font-extrabold text-slate-900 mt-1">${formatNumber(totalTrips)} Trip</p>
+            <p class="text-xs font-semibold text-amber-600 mt-1">Total Tonase: ${formatNumber(totalTonase)} Ton</p>
           </div>
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tonase Kiriman (${period})</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-2">${formatNumber(totalTonase)} <span class="text-xs font-semibold text-slate-500">Ton</span></p>
-            <p class="text-xs text-sky-600 font-semibold mt-2">Akumulasi muatan terverifikasi</p>
+            <span class="text-xs font-bold text-slate-400 uppercase">Total Sisa Deposit Client</span>
+            <p class="text-xl font-extrabold text-emerald-700 mt-1">${formatIDR(totalDeposit)}</p>
+            <p class="text-xs text-slate-500 mt-1">${state.clients.length} Client Terdaftar</p>
           </div>
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sisa Deposit Client</p>
-            <p class="text-xl font-extrabold text-emerald-700 mt-2">${formatIDR(totalDeposit)}</p>
-            <p class="text-xs text-slate-500 mt-2">Total saldo ${state.clients.length} Client</p>
+            <span class="text-xs font-bold text-slate-400 uppercase">Total Piutang Client (AR)</span>
+            <p class="text-xl font-extrabold text-sky-700 mt-1">${formatIDR(totalPiutang)}</p>
+            <p class="text-xs text-slate-500 mt-1">Tagihan Sales Invoice Belum Lunas</p>
           </div>
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Piutang Client (AR)</p>
-            <p class="text-xl font-extrabold text-amber-600 mt-2">${formatIDR(totalPiutang)}</p>
-            <p class="text-xs text-slate-500 mt-2">Sales Invoice (SI) Unpaid</p>
-          </div>
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hutang Ekspedisi (AP)</p>
-            <p class="text-xl font-extrabold text-rose-600 mt-2">${formatIDR(totalHutang)}</p>
-            <p class="text-xs text-slate-500 mt-2">Purchase Invoice (PI) aktif</p>
+            <span class="text-xs font-bold text-slate-400 uppercase">Hutang Ekspedisi (AP)</span>
+            <p class="text-xl font-extrabold text-rose-600 mt-1">${formatIDR(totalHutang)}</p>
+            <p class="text-xs text-slate-500 mt-1">Kewajiban Purchase Invoice (PI)</p>
           </div>
         </div>
-      `;
 
-      const fleetChartsAndTableHtml = `
+        <!-- Charts Row: Bar Chart & Pie Chart -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-8 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-            <h3 class="font-bold text-slate-900 text-base mb-1">Grafik Pengiriman (Count) &amp; Tonase per Mobil (${period})</h3>
-            <p class="text-xs text-slate-500 mb-4">Perbandingan jumlah ritase/pengiriman dan total tonase kiriman</p>
-            <div class="relative h-64 w-full">
+          <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <h3 class="font-bold text-slate-900 text-base">Performa Pengiriman &amp; Tonase per Mobil (${p})</h3>
+            <p class="text-xs text-slate-500 mb-4">Perbandingan jumlah trip dan tonase muatan antar armada</p>
+            <div class="h-64">
               <canvas id="chart-fleet-bar"></canvas>
             </div>
           </div>
-          <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-            <h3 class="font-bold text-slate-900 text-base mb-1">Status Armada</h3>
-            <p class="text-xs text-slate-500 mb-4">Proporsi kesiapan unit mobil</p>
-            <div class="relative h-64 w-full flex items-center justify-center">
+
+          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+            <h3 class="font-bold text-slate-900 text-base">Proporsi Status Armada &amp; Keuangan</h3>
+            <p class="text-xs text-slate-500 mb-4">Distribusi status kendaraan aktif saat ini</p>
+            <div class="h-64 flex items-center justify-center">
               <canvas id="chart-status-pie"></canvas>
             </div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div class="px-6 py-4 border-b border-slate-200">
-            <h3 class="font-bold text-slate-900 text-base">Laporan Monitoring Mobil (${period})</h3>
-            <p class="text-xs text-slate-500">Status operasional terkini, jumlah pengiriman (count), dan total tonase kiriman per armada</p>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  <th class="py-3.5 px-6">ID Mobil</th>
-                  <th class="py-3.5 px-6">Nama Mobil &amp; No. Polisi</th>
-                  <th class="py-3.5 px-6">Status Operasional</th>
-                  <th class="py-3.5 px-6 text-right">Jumlah Pengiriman (${period})</th>
-                  <th class="py-3.5 px-6 text-right">Total Tonase (${period})</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100 text-sm">
-                ${state.vehicles.map(v => {
-                  const statusBadge = {
-                    'Tersedia': 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                    'Sedang Bertugas': 'bg-amber-100 text-amber-800 border-amber-200',
-                    'Maintenance': 'bg-rose-100 text-rose-800 border-rose-200'
-                  }[v.status] || 'bg-slate-100 text-slate-700';
-                  return `
-                    <tr class="hover:bg-slate-50/80">
-                      <td class="py-3.5 px-6 font-bold text-slate-700">${v.mobil_id}</td>
-                      <td class="py-3.5 px-6">
-                        <p class="font-bold text-slate-900">${v.nama_mobil}</p>
-                        <p class="text-xs text-slate-500 font-mono">${v.no_mobil}</p>
+        <!-- Detailed Owner Tables: Monitoring Mobil & Deposit/Piutang/Hutang -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="font-bold text-slate-900 text-sm">1. Laporan Monitoring Mobil (${p})</h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 font-bold uppercase text-slate-500">
+                    <th class="py-3 px-4">Armada &amp; No. Polisi</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Trip</th>
+                    <th class="py-3 px-4 text-right">Tonase</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${state.vehicles.map(v => `
+                    <tr>
+                      <td class="py-3 px-4">
+                        <p class="font-bold text-slate-900">${v.no_mobil}</p>
+                        <p class="text-slate-500">${v.nama_mobil}</p>
                       </td>
-                      <td class="py-3.5 px-6">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusBadge}">${v.status}</span>
+                      <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded-full font-bold ${
+                          v.status === 'Tersedia' ? 'bg-emerald-100 text-emerald-800' : v.status === 'Sedang Bertugas' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                        }">${v.status}</span>
                       </td>
-                      <td class="py-3.5 px-6 text-right font-bold text-slate-900">${v.trips[period]} Trip</td>
-                      <td class="py-3.5 px-6 text-right font-extrabold text-sky-700">${formatNumber(v.tonase[period])} Ton</td>
+                      <td class="py-3 px-4 text-right font-bold text-slate-800">${v.trips[p]}</td>
+                      <td class="py-3 px-4 text-right font-extrabold text-amber-700">${v.tonase[p]} Ton</td>
                     </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-
-      const depositReportHtml = `
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-            <h3 class="font-bold text-slate-900 text-base mb-1">Proporsi Sisa Deposit Client</h3>
-            <p class="text-xs text-slate-500 mb-4">Distribusi saldo deposit aktif tiap Client</p>
-            <div class="relative h-64 w-full flex items-center justify-center">
-              <canvas id="chart-deposit-pie"></canvas>
-            </div>
-          </div>
-          <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Report Deposit Sisa Setiap Client</h3>
-              <p class="text-xs text-slate-500">Posisi saldo deposit terkini setelah pemotongan Sales Request</p>
-            </div>
-            <div class="divide-y divide-slate-100">
-              ${state.clients.map(c => `
-                <div class="p-5 flex items-center justify-between gap-3">
-                  <div>
-                    <span class="text-xs font-bold text-amber-600">${c.client_id}</span>
-                    <p class="text-base font-bold text-slate-900">${c.nama_client}</p>
-                    <p class="text-xs text-slate-500">PIC: ${c.pic} • ${c.telepon}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-lg font-extrabold text-emerald-700">${formatIDR(c.saldo_deposit)}</p>
-                    <span class="text-xs text-slate-400">Saldo Deposit Tersisa</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-      `;
-
-      const arApReportHtml = `
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
-            <h3 class="font-bold text-slate-900 text-base mb-1">Piutang vs Hutang Ekspedisi</h3>
-            <p class="text-xs text-slate-500 mb-4">Perbandingan Accounts Receivable &amp; Payable</p>
-            <div class="relative h-64 w-full flex items-center justify-center">
-              <canvas id="chart-finance-pie"></canvas>
+                  `).join('')}
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-sm">Report Piutang Client (SI)</h3>
-              <p class="text-xs text-slate-500">Tagihan Sales Invoice belum terbayar</p>
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="font-bold text-slate-900 text-sm">2. Sisa Deposit &amp; Piutang per Client</h3>
             </div>
-            <div class="divide-y divide-slate-100 flex-1">
-              ${state.salesInvoices.map(si => `
-                <div class="p-4 flex items-center justify-between gap-3">
-                  <div>
-                    <p class="text-xs font-bold text-slate-700">${si.si_id} • ${getClientName(si.client_id)}</p>
-                    <p class="text-xs text-slate-500">Ref TB: ${si.tb_id}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm font-extrabold ${si.piutang_client > 0 ? 'text-amber-600' : 'text-emerald-600'}">${formatIDR(si.piutang_client)}</p>
-                    <span class="text-[11px] font-semibold ${si.piutang_client > 0 ? 'text-amber-700' : 'text-emerald-700'}">${si.status}</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
-            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-sm">Report Hutang kepada Ekspedisi (PI)</h3>
-              <p class="text-xs text-slate-500">Kewajiban Purchase Invoice ke vendor</p>
-            </div>
-            <div class="divide-y divide-slate-100 flex-1">
-              ${state.purchaseInvoices.map(pi => `
-                <div class="p-4 flex items-center justify-between gap-3">
-                  <div>
-                    <p class="text-xs font-bold text-slate-700">${pi.pi_id} • ${getExpeditionName(pi.ekspedisi_id)}</p>
-                    <p class="text-xs text-slate-500">Ref SJ: ${pi.sj_id}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-sm font-extrabold ${pi.status === 'Paid' ? 'text-emerald-600' : 'text-rose-600'}">${formatIDR(pi.hutang_ekspedisi)}</p>
-                    <span class="text-[11px] font-semibold text-slate-500">${pi.status}</span>
-                  </div>
-                </div>
-              `).join('')}
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 font-bold uppercase text-slate-500">
+                    <th class="py-3 px-4">Client</th>
+                    <th class="py-3 px-4 text-right">Sisa Deposit</th>
+                    <th class="py-3 px-4 text-right">Piutang (AR)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${state.clients.map(c => {
+                    const piutang = state.salesInvoices
+                      .filter(si => si.client_id === c.client_id)
+                      .reduce((s, si) => s + si.piutang_client, 0);
+                    return `
+                      <tr>
+                        <td class="py-3 px-4 font-bold text-slate-900">${c.nama_client}</td>
+                        <td class="py-3 px-4 text-right font-extrabold text-emerald-700">${formatIDR(c.saldo_deposit)}</td>
+                        <td class="py-3 px-4 text-right font-extrabold ${piutang > 0 ? 'text-rose-600' : 'text-slate-500'}">${formatIDR(piutang)}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       `;
-
-      if (sub === 'fleet') return periodBarHtml + fleetChartsAndTableHtml;
-      if (sub === 'deposit_rep') return depositReportHtml;
-      if (sub === 'ar_ap_rep') return arApReportHtml;
-
-      // Default: 'overview' menampilkan ringkasan lengkap semua laporan
-      return periodBarHtml + kpiCardsHtml + fleetChartsAndTableHtml + depositReportHtml + arApReportHtml;
     }
 
     function initDashboardCharts() {
-      if (state.activeMenu !== 'dashboard' || state.currentRole !== 'Owner') return;
+      if (state.currentRole !== 'Owner') return;
+      const p = state.dashboardPeriod;
 
-      Object.values(charts).forEach(c => c && c.destroy());
-      charts = {};
+      Object.values(chartInstances).forEach(ch => ch && ch.destroy());
+      chartInstances = {};
 
-      const period = state.dashboardPeriod;
+      const barCanvas = document.getElementById('chart-fleet-bar');
+      const pieCanvas = document.getElementById('chart-status-pie');
+      if (!barCanvas || !pieCanvas || typeof Chart === 'undefined') return;
 
-      // 1. Fleet Bar Chart
-      const ctxBar = document.getElementById('chart-fleet-bar');
-      if (ctxBar) {
-        charts.fleetBar = new Chart(ctxBar, {
-          type: 'bar',
-          data: {
-            labels: state.vehicles.map(v => v.no_mobil),
-            datasets: [
-              {
-                label: 'Jumlah Pengiriman (Trip)',
-                data: state.vehicles.map(v => v.trips[period]),
-                backgroundColor: '#0f172a',
-                borderRadius: 6,
-                yAxisID: 'y'
-              },
-              {
-                label: 'Total Tonase (Ton)',
-                data: state.vehicles.map(v => v.tonase[period]),
-                backgroundColor: '#f59e0b',
-                borderRadius: 6,
-                yAxisID: 'y1'
-              }
-            ]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } } }
+      chartInstances.bar = new Chart(barCanvas, {
+        type: 'bar',
+        data: {
+          labels: state.vehicles.map(v => v.no_mobil),
+          datasets: [
+            {
+              label: `Jumlah Trip (${p})`,
+              data: state.vehicles.map(v => v.trips[p]),
+              backgroundColor: '#0f172a',
+              borderRadius: 6
             },
-            scales: {
-              y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Trip', font: { size: 11 } } },
-              y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Ton', font: { size: 11 } } }
+            {
+              label: `Tonase Kiriman (${p})`,
+              data: state.vehicles.map(v => v.tonase[p]),
+              backgroundColor: '#f59e0b',
+              borderRadius: 6
             }
-          }
-        });
-      }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
 
-      // 2. Status Mobil Pie Chart
-      const ctxStatus = document.getElementById('chart-status-pie');
-      if (ctxStatus) {
-        charts.statusPie = new Chart(ctxStatus, {
-          type: 'doughnut',
-          data: {
-            labels: ['Tersedia', 'Sedang Bertugas', 'Maintenance'],
-            datasets: [{
-              data: [
-                state.vehicles.filter(v => v.status === 'Tersedia').length,
-                state.vehicles.filter(v => v.status === 'Sedang Bertugas').length,
-                state.vehicles.filter(v => v.status === 'Maintenance').length
-              ],
-              backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
-              borderWidth: 2,
-              borderColor: '#ffffff'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '60%',
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Inter' } } }
-            }
-          }
-        });
-      }
+      const tersedia = state.vehicles.filter(v => v.status === 'Tersedia').length;
+      const bertugas = state.vehicles.filter(v => v.status === 'Sedang Bertugas').length;
+      const maint = state.vehicles.filter(v => v.status === 'Maintenance').length;
 
-      // 3. Deposit Client Pie Chart
-      const ctxDeposit = document.getElementById('chart-deposit-pie');
-      if (ctxDeposit) {
-        charts.depositPie = new Chart(ctxDeposit, {
-          type: 'doughnut',
-          data: {
-            labels: state.clients.map(c => c.nama_client),
-            datasets: [{
-              data: state.clients.map(c => c.saldo_deposit),
-              backgroundColor: ['#10b981', '#0284c7', '#f59e0b'],
-              borderWidth: 2,
-              borderColor: '#ffffff'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '58%',
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Inter' } } }
-            }
-          }
-        });
-      }
-
-      // 4. Finance Piutang vs Hutang Pie Chart
-      const ctxFin = document.getElementById('chart-finance-pie');
-      if (ctxFin) {
-        const totalPiutang = state.salesInvoices.reduce((sum, si) => sum + si.piutang_client, 0);
-        const totalHutang = state.purchaseInvoices.filter(pi => pi.status !== 'Paid').reduce((sum, pi) => sum + pi.hutang_ekspedisi, 0);
-
-        charts.financePie = new Chart(ctxFin, {
-          type: 'pie',
-          data: {
-            labels: ['Piutang Client (AR)', 'Hutang Ekspedisi (AP)'],
-            datasets: [{
-              data: [totalPiutang, totalHutang],
-              backgroundColor: ['#d97706', '#e11d48'],
-              borderWidth: 2,
-              borderColor: '#ffffff'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Inter' } } }
-            }
-          }
-        });
-      }
+      chartInstances.pie = new Chart(pieCanvas, {
+        type: 'doughnut',
+        data: {
+          labels: ['Tersedia', 'Sedang Bertugas', 'Maintenance'],
+          datasets: [{
+            data: [tersedia, bertugas, maint],
+            backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
     }
 
     // =========================================================================
@@ -1150,6 +979,23 @@
       }
     }
 
+    function calculateSrTotalBiaya() {
+      const beratInput = document.getElementById('sr-berat-est');
+      const hargaInput = document.getElementById('sr-harga-kg');
+      const totalInput = document.getElementById('sr-nominal-est');
+      const formulaDisplay = document.getElementById('sr-formula-display');
+      if (!beratInput || !hargaInput || !totalInput) return;
+
+      const berat = parseFloat(beratInput.value) || 0;
+      const harga = parseFloat(hargaInput.value) || 0;
+      const total = berat * harga;
+
+      totalInput.value = total;
+      if (formulaDisplay) {
+        formulaDisplay.textContent = `${formatNumber(berat)} Kg × ${formatIDR(harga)} = ${formatIDR(total)}`;
+      }
+    }
+
     function setSrStatusFilter(status) {
       state.srStatusFilter = status;
       renderApp();
@@ -1159,10 +1005,11 @@
       e.preventDefault();
       const clientId = document.getElementById('sr-client-id').value;
       const tanggalMuat = document.getElementById('sr-tanggal-muat').value;
-      const beratEst = parseFloat(document.getElementById('sr-berat-est').value);
+      const beratEst = parseFloat(document.getElementById('sr-berat-est').value) || 0;
+      const hargaPerKg = parseFloat(document.getElementById('sr-harga-kg').value) || 0;
       const asal = document.getElementById('sr-asal').value.trim();
       const tujuan = document.getElementById('sr-tujuan').value.trim();
-      const nominalEst = parseFloat(document.getElementById('sr-nominal-est').value);
+      const nominalEst = beratEst * hargaPerKg;
 
       const client = state.clients.find(c => c.client_id === clientId);
       if (!client) return;
@@ -1170,7 +1017,7 @@
       if (nominalEst > client.saldo_deposit) {
         showToast(
           'Saldo Deposit Tidak Mencukupi',
-          `Nominal pesanan (${formatIDR(nominalEst)}) melebihi sisa deposit ${client.nama_client} (${formatIDR(client.saldo_deposit)}).`,
+          `Total Biaya (${formatIDR(nominalEst)}) melebihi sisa deposit ${client.nama_client} (${formatIDR(client.saldo_deposit)}).`,
           'error'
         );
         return;
@@ -1196,6 +1043,7 @@
         client_id: clientId,
         tanggal_muat: tanggalMuat,
         berat_muat_est: beratEst,
+        harga_per_kg: hargaPerKg,
         lokasi_pengambilan: asal,
         lokasi_tujuan: tujuan,
         nominal_est: nominalEst,
@@ -1204,7 +1052,7 @@
 
       showToast(
         `Sales Request ${newSrId} Berhasil Dibuat`,
-        `Saldo deposit ${client.nama_client} otomatis terpotong sebesar ${formatIDR(nominalEst)}.`,
+        `Total Biaya ${formatIDR(nominalEst)} (${formatNumber(beratEst)} Kg × ${formatIDR(hargaPerKg)}) memotong saldo deposit ${client.nama_client}.`,
         'success'
       );
 
@@ -1223,6 +1071,9 @@
           ? state.clients.filter(c => c.client_id === state.activeClientId)
           : state.clients;
         const defaultClient = availableClients[0];
+        const defaultBerat = 15000;
+        const defaultHarga = 750;
+        const defaultTotal = defaultBerat * defaultHarga;
 
         return `
           <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
@@ -1230,7 +1081,7 @@
               <div>
                 <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Sales Request / Create</span>
                 <h2 class="text-xl font-extrabold text-slate-900">Formulir Permintaan Pengiriman Baru (SR)</h2>
-                <p class="text-xs text-slate-500 mt-0.5">Nominal estimasi akan langsung memotong saldo deposit Client saat dikirim.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Total biaya dihitung otomatis dari <b>Berat Muatan × Harga</b> dan langsung memotong deposit Client.</p>
               </div>
               <button onclick="navigateTo('sr', 'list')" class="px-3.5 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700">
                 ← Kembali ke List SR
@@ -1249,14 +1100,18 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tanggal Muat *</label>
                   <input type="date" id="sr-tanggal-muat" value="2026-11-21" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Berat Muat Estimasi (Kg) *</label>
-                  <input type="number" id="sr-berat-est" min="100" step="50" value="15000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Berat Muat (Kg) *</label>
+                  <input type="number" id="sr-berat-est" oninput="calculateSrTotalBiaya()" min="1" step="1" value="${defaultBerat}" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Harga per Kg (IDR) *</label>
+                  <input type="number" id="sr-harga-kg" oninput="calculateSrTotalBiaya()" min="1" step="10" value="${defaultHarga}" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500" />
                 </div>
               </div>
 
@@ -1271,10 +1126,15 @@
                 </div>
               </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Estimasi Biaya Pengiriman (IDR) *</label>
-                <input type="number" id="sr-nominal-est" min="500000" step="100000" value="11000000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
-                <p class="text-xs text-slate-500 mt-1.5">* Sistem otomatis memotong saldo deposit Client sejumlah nominal ini apabila saldo mencukupi.</p>
+              <div class="p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider">Total Biaya Penagihan Client (Berat Muatan × Harga)</label>
+                  <span id="sr-formula-display" class="text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-lg">
+                    ${formatNumber(defaultBerat)} Kg × ${formatIDR(defaultHarga)} = ${formatIDR(defaultTotal)}
+                  </span>
+                </div>
+                <input type="number" id="sr-nominal-est" value="${defaultTotal}" readonly class="w-full rounded-xl border border-amber-300 bg-white px-3.5 py-2.5 text-base font-extrabold text-slate-900 focus:outline-none cursor-not-allowed" />
+                <p class="text-xs text-amber-800">* Dihitung otomatis dari <b>Berat Muatan × Harga</b> dan menjadi nominal penagihan / pemotongan saldo deposit Client.</p>
               </div>
 
               <div class="pt-2 flex items-center justify-end gap-3">
@@ -1306,7 +1166,7 @@
           <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 class="font-bold text-slate-900 text-base">Daftar Dokumen Sales Request (SR)</h3>
-              <p class="text-xs text-slate-500">Seluruh permintaan pengiriman dari Client beserta status eksekusinya</p>
+              <p class="text-xs text-slate-500">Seluruh permintaan pengiriman dari Client beserta rincian berat, harga, dan total biaya</p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
@@ -1331,8 +1191,9 @@
                 <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   <th class="py-3.5 px-6">Kode SR &amp; Client</th>
                   <th class="py-3.5 px-6">Rute Pengiriman</th>
-                  <th class="py-3.5 px-6">Tgl Muat &amp; Berat Est</th>
-                  <th class="py-3.5 px-6 text-right">Nominal (Deposit)</th>
+                  <th class="py-3.5 px-6">Tgl Muat &amp; Berat</th>
+                  <th class="py-3.5 px-6 text-right">Harga / Kg</th>
+                  <th class="py-3.5 px-6 text-right">Total Biaya</th>
                   <th class="py-3.5 px-6">Status</th>
                   ${!isClientRole ? '<th class="py-3.5 px-6 text-right">Aksi</th>' : ''}
                 </tr>
@@ -1359,6 +1220,7 @@
                         <p class="font-semibold text-slate-800">${sr.tanggal_muat}</p>
                         <p class="text-slate-500">${formatNumber(sr.berat_muat_est)} Kg</p>
                       </td>
+                      <td class="py-4 px-6 text-right font-semibold text-slate-700 text-xs">${formatIDR(sr.harga_per_kg)}</td>
                       <td class="py-4 px-6 text-right font-extrabold text-emerald-700">${formatIDR(sr.nominal_est)}</td>
                       <td class="py-4 px-6">
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeStyle}">${sr.status}</span>
@@ -1788,14 +1650,15 @@
 
       // 3. Terbitkan Sales Invoice (SI) otomatis berdasarkan TB (Struktur Data #4)
       const newSiId = `SI-2026-${String(state.salesInvoices.length + 1).padStart(3, '0')}`;
+      const totalTagihanSi = sr ? (sr.berat_muat_est * sr.harga_per_kg) : 0;
       state.salesInvoices.unshift({
         si_id: newSiId,
         tb_id: newTbId,
         sr_id: sj.sr_id,
         client_id: sr ? sr.client_id : 'CL-001',
         tanggal_invoice: tglBongkar,
-        total_tagihan: sr ? sr.nominal_est : 0,
-        potong_deposit: sr ? sr.nominal_est : 0,
+        total_tagihan: totalTagihanSi,
+        potong_deposit: totalTagihanSi,
         piutang_client: 0,
         status: 'Paid (via Deposit)'
       });
