@@ -1,362 +1,2169 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portofolio - Dicky Armando Dimas Setiaji</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font & Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogiTrack ERP — Sistem Manajemen Logistik & Pengiriman Barang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    /* Custom scrollbar for clean enterprise look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased selection:bg-blue-500 selection:text-white">
+<body class="antialiased selection:bg-amber-100 selection:text-amber-900">
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full bg-slate-900/80 backdrop-blur-md z-50 border-b border-slate-800">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-            <span class="text-xl font-bold tracking-tight text-blue-400">Dicky Armando.</span>
-            <div class="hidden md:flex space-x-8 text-sm font-medium">
-                <a href="#about" class="hover:text-blue-400 transition">Tentang</a>
-                <a href="#experience" class="hover:text-blue-400 transition">Pengalaman</a>
-                <a href="#skills" class="hover:text-blue-400 transition">Keahlian</a>
-                <a href="#certificates" class="hover:text-blue-400 transition">Sertifikat</a>
-                <a href="#contact" class="hover:text-blue-400 transition">Kontak</a>
-            </div>
+  <!-- Toast / Message Box Container (Replaces alert) -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none"></div>
+
+  <!-- Main App Shell -->
+  <div class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-slate-900 text-slate-200 flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out shrink-0">
+      <!-- Brand Logo -->
+      <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-extrabold shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+            </svg>
+          </div>
+          <div>
+            <span class="font-extrabold text-white tracking-tight text-lg block leading-none">LogiTrack</span>
+            <span class="text-[11px] font-medium text-amber-400 tracking-wider uppercase">Freight &amp; ERP</span>
+          </div>
         </div>
-    </nav>
+        <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
 
-    <!-- Hero / About Section -->
-    <section id="about" class="pt-32 pb-20 px-6 max-w-6xl mx-auto">
-        <div class="grid md:grid-cols-3 gap-12 items-center">
-            <div class="md:col-span-2 space-y-6">
-                <div class="inline-block px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-semibold rounded-full border border-blue-500/20">
-                    IT Project Manager • Systems Analyst • IT Consultant
-                </div>
-                <h1 class="text-4xl sm:text-5xl font-extrabold text-white leading-tight">
-                    Dicky Armando Dimas Setiaji
-                </h1>
-                <p class="text-slate-400 text-lg leading-relaxed">
-                    Memimpin proyek IT di PT. Kita Indonesia Plus dengan mengelola seluruh fase *Software Development Life Cycle* (SDLC). Terbukti menyampaikan 98% solusi sukses tepat waktu dan sesuai anggaran melalui manajemen risiko yang terukur.
-                </p>
-                <div class="flex flex-wrap gap-4 pt-2">
-                    <a href="#contact" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition shadow-lg shadow-blue-500/25">
-                        Hubungi Saya
-                    </a>
-                    <a href="https://www.linkedin.com/in/dickyarmandodimas/" target="_blank" class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg border border-slate-700 transition">
-                        <i class="fab font-normal fa-linkedin mr-2"></i>LinkedIn
-                    </a>
-                </div>
-            </div>
-<!-- Profile Photo (Fit & Seamless) -->
-            <div class="flex justify-center">
-                <div class="relative w-64 sm:w-72 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-white flex items-center justify-center">
-                    <img src="background_putih_pro.png" alt="Dicky Armando Dimas Setiaji" class="w-full h-auto object-cover block">
-                </div>
-            </div>
+      <!-- Active Role Banner in Sidebar -->
+      <div class="px-5 py-3.5 bg-slate-800/60 border-b border-slate-800">
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-slate-400">Mode Akses Aktif</span>
+          <span id="sidebar-role-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Owner</span>
         </div>
-    </section>
+        <p id="sidebar-user-name" class="text-sm font-semibold text-white mt-1 truncate">Hendra Wijaya (Owner)</p>
+      </div>
 
-    <!-- Metrics / Key Highlights -->
-    <section class="border-y border-slate-800 bg-slate-900/50 py-10">
-        <div class="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-6 text-center">
-            <div>
-                <p class="text-3xl font-bold text-blue-400">98%</p>
-                <p class="text-sm text-slate-400 mt-1">On-Time & Budget Delivery</p>
-            </div>
-            <div>
-                <p class="text-3xl font-bold text-blue-400">End-to-End</p>
-                <p class="text-sm text-slate-400 mt-1">SDLC Execution</p>
-            </div>
-            <div class="col-span-2 md:col-span-1">
-                <p class="text-3xl font-bold text-blue-400">Cross-Functional</p>
-                <p class="text-sm text-slate-400 mt-1">Team Leadership</p>
-            </div>
+      <!-- Navigation Links -->
+      <nav id="sidebar-nav" class="flex-1 px-3 py-4 space-y-1 overflow-y-auto"></nav>
+
+      <!-- Document Flow Legend Footer -->
+      <div class="p-4 m-3 rounded-xl bg-slate-800/80 border border-slate-700/70">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400 mb-2">Hierarki Dokumen BRD</p>
+        <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-semibold text-slate-300">
+          <span class="px-2 py-0.5 rounded bg-slate-700 text-amber-300">SR</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-slate-700 text-sky-300">SJ + UJ</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-slate-700 text-emerald-300">TB</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-slate-700 text-purple-300">SI &amp; PI</span>
         </div>
-    </section>
+      </div>
+    </aside>
 
-    <!-- Work Experience Section -->
-    <section id="experience" class="py-20 px-6 max-w-6xl mx-auto">
-        <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
-            <i class="fas fa-briefcase text-blue-400"></i> Pengalaman Kerja
-        </h2>
+    <!-- Main Workspace -->
+    <div class="flex-1 flex flex-col min-w-0">
 
-        <div class="space-y-8 border-l-2 border-slate-800 pl-6 ml-2">
-            
-            <!-- Experience 1 -->
-            <div class="relative group">
-                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-blue-500 border-4 border-slate-900"></div>
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
-                        <h3 class="text-xl font-semibold text-white">IT Project Manager</h3>
-                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
-                            Jun 2024 - Sekarang
-                        </span>
-                    </div>
-                    <p class="text-blue-400 text-sm mb-4">PT. Kita Indonesia Plus • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
-                        <li>Mengembangkan *project management roadmap* untuk menentukan sasaran proyek, linimasa, serta *milestones*.</li>
-                        <li>Mengawasi seluruh fase desain, pengembangan, pengujian (QA), rilis, dan dukungan operasional perangkat lunak.</li>
-                        <li>Memimpin tim lintas fungsi dalam alokasi sumber daya dan integrasi sistem bersama pihak ketiga/vendor.</li>
-                        <li>Mengarahkan tim berisi 4 personil dalam administrasi dan optimasi infrastruktur IT kompleks.</li>
-                    </ul>
-                    <div class="border-t border-slate-700/50 pt-3 mt-3">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Dashboard Health Insurance - Monitoring Claim</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Dashboard Insurance Banking - Transaction & Claim</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Mobile Apps - Integration Biller Payment WE+ & Espay</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Mobile Apps - Integration Telemedicine WE+ & Halodoc</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Experience 2 -->
-            <div class="relative group">
-                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
-                        <h3 class="text-xl font-semibold text-white">Senior IT Product Specialist</h3>
-                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
-                            Sep 2018 - Apr 2024
-                        </span>
-                    </div>
-                    <p class="text-blue-400 text-sm mb-4">PT. Intelligent Systems Solutions • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
-                        <li>Mengonfigurasi dan mengelola infrastruktur server, jaringan, hardware, serta software inventaris.</li>
-                        <li>Mengembangkan solusi software *custom* untuk meningkatkan efisiensi proses bisnis dan produktivitas.</li>
-                        <li>Menyusun kebijakan IT komprehensif sesuai regulasi industri dan *best practices*.</li>
-                        <li>Negosiasi kontrak vendor untuk meningkatkan kualitas produk/layanan dan standar pengiriman.</li>
-                    </ul>
-                    <div class="border-t border-slate-700/50 pt-3 mt-3">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Personalization Card Machine NBS Tech at Bank Mandiri (2018)</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Quality Control Card Machine NBS Tech at Bank BCA (2020)</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Quality Control Card Machine NBS Tech at Bank Mandiri (2023)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Experience 3 -->
-            <div class="relative group">
-                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
-                        <h3 class="text-xl font-semibold text-white">IT Product Specialist / Systems Analyst</h3>
-                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
-                            Jul 2017 - Sep 2018
-                        </span>
-                    </div>
-                    <p class="text-blue-400 text-sm mb-4">PT. Shan Informasi Sistem • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
-                        <li>Mengumpulkan kebutuhan sistem (*requirement gathering*) dan melakukan *gap analysis* melalui workshop desain bersama *end-user*.</li>
-                        <li>Membuat dokumentasi teknis mendetail untuk referensi internal serta presentasi *client-facing*.</li>
-                        <li>Memberikan dukungan teknis tingkat lanjut (*advanced technical support*) untuk meminimalkan *downtime* sistem.</li>
-                    </ul>
-                    <div class="border-t border-slate-700/50 pt-3 mt-3">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System (Distribution, POS, Finance, Accounting) SISCOM at Huawei Indonesia</span>
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System SISCOM at Terra Resources</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Experience 4 -->
-            <div class="relative group">
-                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
-                        <h3 class="text-xl font-semibold text-white">Information Technology Specialist</h3>
-                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
-                            Jun 2014 - Jul 2017
-                        </span>
-                    </div>
-                    <p class="text-blue-400 text-sm mb-4">PT. Sinar Baru Electric • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2 mb-4">
-                        <li>Mengotomatisasi alur kerja IT, mengelola sistem *ticketing helpdesk*, dan mengontrol ruang server serta infrastruktur jaringan nirkabel.</li>
-                        <li>Menerapkan langkah *cybersecurity* (firewall, antivirus, IDS, serta penilaian kerentanan berkala).</li>
-                        <li>Memelihara hubungan klien yang menghasilkan tingkat kepuasan hingga 98%.</li>
-                    </ul>
-                    <div class="border-t border-slate-700/50 pt-3 mt-3">
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2"><i class="fas fa-folder-open text-blue-400 mr-1"></i> Proyek Utama:</p>
-                        <div class="flex flex-wrap gap-2 text-xs">
-                            <span class="bg-slate-700/60 text-slate-300 px-2.5 py-1 rounded border border-slate-600/40">Project Management System (Distribution, POS, Finance, Accounting)</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Experience 5 -->
-            <div class="relative group">
-                <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-slate-600 border-4 border-slate-900 group-hover:bg-blue-500 transition"></div>
-                <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-6 hover:border-slate-600 transition">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-2">
-                        <h3 class="text-xl font-semibold text-white">IT Support Engineer</h3>
-                        <span class="text-xs font-medium text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full w-fit mt-1 sm:mt-0">
-                            Jan 2012 - Jun 2014
-                        </span>
-                    </div>
-                    <p class="text-blue-400 text-sm mb-4">CV. Maju Jaya Utama • Jakarta, Indonesia</p>
-                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-2">
-                        <li>Menginstal, mengonfigurasi, menguji, dan memelihara sistem operasi, aplikasi, serta *tool* manajemen sistem.</li>
-                        <li>Mendiagnosis dan menyelesaikan masalah perangkat keras, lunak, dan jaringan (*troubleshooting*).</li>
-                        <li>Mengelola inventaris perangkat komputer dan mendokumentasikan basis pengetahuan (*knowledge base*) teknis.</li>
-                    </ul>
-                </div>
-            </div>
-
+      <!-- Top Header Bar -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h1 id="page-title" class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Executive Report Dashboard</h1>
+            <p id="page-subtitle" class="text-xs text-slate-500 hidden sm:block">Ringkasan kinerja armada, deposit, piutang &amp; hutang ekspedisi</p>
+          </div>
         </div>
-    </section>
 
-    <!-- Core Competencies Section -->
-    <section id="skills" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
-        <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
-            <i class="fas fa-cogs text-blue-400"></i> Keahlian & Metodologi
-        </h2>
-
-        <div class="grid md:grid-cols-3 gap-6">
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
-                <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-tasks"></i></div>
-                <h3 class="text-lg font-semibold text-white mb-2">Project Management</h3>
-                <p class="text-slate-400 text-sm">SDLC Planning, Agile & Waterfall, Task Prioritization, Resource Allocation, Roadmap Development, Scrum Master.</p>
-            </div>
-
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
-                <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-shield-alt"></i></div>
-                <h3 class="text-lg font-semibold text-white mb-2">Analisis & Risiko</h3>
-                <p class="text-slate-400 text-sm">Business Process Analysis, Systems Analysis, Risk Management & Mitigation, Data Analytics, Query Optimization (SQL).</p>
-            </div>
-
-            <div class="bg-slate-800/40 p-6 rounded-xl border border-slate-800">
-                <div class="text-blue-400 text-2xl mb-4"><i class="fas fa-network-wired"></i></div>
-                <h3 class="text-lg font-semibold text-white mb-2">Integrasi & Tools</h3>
-                <p class="text-slate-400 text-sm">API Documentation, Postman, Hoppscotch, Figma, Jira, Trello, Taiga, Miro, MS SQL Server, MySQL, PostgreSQL, Cloud Management.</p>
-            </div>
+        <!-- Prominent Role Switcher -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 pl-2 hidden md:inline">Simulasi Peran:</span>
+            <button onclick="switchRole('Owner')" id="role-btn-Owner" class="role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
+              Owner
+            </button>
+            <button onclick="switchRole('Admin')" id="role-btn-Admin" class="role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
+              Admin
+            </button>
+            <button onclick="switchRole('Client')" id="role-btn-Client" class="role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all">
+              Client
+            </button>
+          </div>
         </div>
-    </section>
+      </header>
 
-    <!-- Certificates Section -->
-    <section id="certificates" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
-        <h2 class="text-2xl font-bold text-white mb-10 flex items-center gap-3">
-            <i class="fas fa-certificate text-blue-400"></i> Sertifikasi & Lisensi
-        </h2>
+      <!-- Dynamic Content Container -->
+      <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6"></main>
 
-        <div class="grid sm:grid-cols-2 gap-6">
-            <!-- Cert 1 -->
-            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fab fa-google text-2xl text-blue-400"></i>
-                        <div>
-                            <h3 class="text-base font-semibold text-white">Google Project Management</h3>
-                            <p class="text-xs text-slate-400">Google • Coursera</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 text-xs mb-4">
-                        Professional Certificate melingkupi 7 kursus: Foundations, Initiation, Planning, Execution, Agile PM, Capstone, dan AI Job Search.
-                    </p>
-                </div>
-                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
-                    <span class="text-slate-500">Jun 2025 - Present</span>
-                    <a href="https://www.coursera.org/account/accomplishments/specialization/J671EI2RI66J?utm_source%3Dandroid%26utm_medium%3Dcertificate%26utm_content%3Dcert_image%26utm_campaign%3Dsharing_cta%26utm_product%3Ds12n" target="_blank" class="text-blue-400 hover:underline flex items-center gap-1">
-                        Verifikasi <i class="fas fa-external-link-alt text-[10px]"></i>
-                    </a>
-                </div>
-            </div>
+    </div>
+  </div>
 
-            <!-- Cert 2 -->
-            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fab fa-aws text-2xl text-amber-400"></i>
-                        <div>
-                            <h3 class="text-base font-semibold text-white">Generative AI Essentials on AWS</h3>
-                            <p class="text-xs text-slate-400">Amazon Web Services (AWS)</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 text-xs mb-4">
-                        Pemahaman dasar konsep AI Generatif, model bahasa besar, dan penerapannya pada infrastruktur cloud AWS (360 Menit).
-                    </p>
-                </div>
-                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
-                    <span class="text-slate-500">Nov 2025</span>
-                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Selesai</span>
-                </div>
-            </div>
-
-            <!-- Cert 3 -->
-            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fas fa-cloud text-2xl text-orange-400"></i>
-                        <div>
-                            <h3 class="text-base font-semibold text-white">Big Data ACLD25</h3>
-                            <p class="text-xs text-slate-400">Alibaba Cloud DataWorks</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 text-xs mb-4">
-                        Sertifikasi pengolahan dan analisis data skala besar menggunakan platform Alibaba Cloud DataWorks.
-                    </p>
-                </div>
-                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
-                    <span class="text-slate-500">Mei 2023 - Mei 2026</span>
-                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Aktif</span>
-                </div>
-            </div>
-
-            <!-- Cert 4 -->
-            <div class="bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl p-6 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-3">
-                        <i class="fas fa-laptop-code text-2xl text-cyan-400"></i>
-                        <div>
-                            <h3 class="text-base font-semibold text-white">Data Analyst (Professional Academy)</h3>
-                            <p class="text-xs text-slate-400">Digital Talent Scholarship - KOMINFO</p>
-                        </div>
-                    </div>
-                    <p class="text-slate-400 text-xs mb-4">
-                        Program pelatihan kompetensi analisis data nasional dari Kementerian Komunikasi dan Informatika RI.
-                    </p>
-                </div>
-                <div class="flex justify-between items-center pt-3 border-t border-slate-800/60 text-xs">
-                    <span class="text-slate-500">Apr 2024</span>
-                    <span class="text-emerald-400 flex items-center gap-1"><i class="fas fa-check-circle"></i> Selesai</span>
-                </div>
-            </div>
+  <!-- MODAL: Ganti Sopir Saat Pengiriman (Driver Change Modal) -->
+  <div id="modal-driver-change" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">Update Sopir Saat Pengiriman</h3>
+          <p class="text-xs text-slate-400">Audit Trail &amp; Driver Change Log pada Surat Jalan</p>
         </div>
-    </section>
+        <button onclick="closeDriverModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form onsubmit="submitDriverChange(event)" class="p-6 space-y-4">
+        <input type="hidden" id="dc-sj-id" />
+        <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+          <div class="flex justify-between">
+            <span class="font-semibold">No. Surat Jalan (SJ):</span>
+            <span id="dc-sj-label" class="font-bold"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="font-semibold">Sopir Saat Ini:</span>
+            <span id="dc-old-driver" class="font-bold text-slate-900"></span>
+          </div>
+        </div>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 px-6 max-w-6xl mx-auto border-t border-slate-800">
-        <div class="bg-gradient-to-r from-blue-900/30 to-slate-800/40 rounded-2xl p-8 sm:p-12 border border-slate-700/50 text-center">
-            <h2 class="text-3xl font-bold text-white mb-4">Mari Bekerja Sama</h2>
-            <p class="text-slate-400 max-w-xl mx-auto mb-8 text-sm sm:text-base">
-                Terbuka untuk kolaborasi proyek IT, konsultasi sistem, dan peluang profesional lainnya.
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Pilih Sopir Pengganti *</label>
+          <select id="dc-new-driver" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-white"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Alasan Pergantian Sopir *</label>
+          <textarea id="dc-reason" rows="3" required placeholder="Contoh: Sopir utama sakit di rest area KM 102, digantikan sopir cadangan..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onclick="closeDriverModal()" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm">Simpan Perubahan Sopir</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Lihat Driver Change Log -->
+  <div id="modal-driver-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-xl w-full overflow-hidden">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold text-base">Riwayat Pergantian Sopir (Driver Change Log)</h3>
+          <p id="dh-sj-subtitle" class="text-xs text-amber-400 font-medium"></p>
+        </div>
+        <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="dh-content" class="p-6 max-h-[65vh] overflow-y-auto space-y-3"></div>
+      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeHistoryModal()" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 text-white hover:bg-slate-700">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. STATE & DATA INITIALIZATION (BRD ENTITY STRUCTURE)
+    // =========================================================================
+    const state = {
+      currentRole: 'Owner', // 'Owner' | 'Admin' | 'Client'
+      activeClientId: 'CL-001', // Simulated logged-in Client when Role === 'Client'
+      activeTab: 'dashboard',
+      dashboardPeriod: 'Monthly', // 'Daily' | 'Weekly' | 'Monthly' | 'Yearly'
+      financeSubTab: 'si', // 'si' | 'pi' | 'deposit'
+
+      // Master Data Client & Saldo Deposit
+      clients: [
+        { client_id: 'CL-001', nama_client: 'PT Sumber Makmur Jaya', pic: 'Rina Marlina', telepon: '021-5551234', saldo_deposit: 45000000 },
+        { client_id: 'CL-002', nama_client: 'CV Logam Nusantara', pic: 'Hendra Gunawan', telepon: '021-5559876', saldo_deposit: 28500000 },
+        { client_id: 'CL-003', nama_client: 'PT Agro Pangan Sejahtera', pic: 'Dewi Lestari', telepon: '031-7782311', saldo_deposit: 12000000 }
+      ],
+
+      // Master Data Mobil (mobil_id, nama_mobil, no_mobil, status)
+      vehicles: [
+        { mobil_id: 'MB-001', nama_mobil: 'Mitsubishi Fuso Fighter', no_mobil: 'B 9124 KXA', status: 'Sedang Bertugas', trips: { Daily: 1, Weekly: 4, Monthly: 18, Yearly: 196 }, tonase: { Daily: 14.8, Weekly: 58.2, Monthly: 265.4, Yearly: 2890 } },
+        { mobil_id: 'MB-002', nama_mobil: 'Hino Ranger FM 260', no_mobil: 'B 9482 UYT', status: 'Sedang Bertugas', trips: { Daily: 1, Weekly: 5, Monthly: 21, Yearly: 224 }, tonase: { Daily: 19.5, Weekly: 96.0, Monthly: 412.0, Yearly: 4380 } },
+        { mobil_id: 'MB-003', nama_mobil: 'Isuzu Giga FVZ 285', no_mobil: 'D 8831 XW', status: 'Tersedia', trips: { Daily: 0, Weekly: 3, Monthly: 15, Yearly: 175 }, tonase: { Daily: 0, Weekly: 45.5, Monthly: 228.5, Yearly: 2610 } },
+        { mobil_id: 'MB-004', nama_mobil: 'UD Trucks Quester CWE', no_mobil: 'L 9012 AB', status: 'Tersedia', trips: { Daily: 1, Weekly: 4, Monthly: 16, Yearly: 182 }, tonase: { Daily: 18.0, Weekly: 72.0, Monthly: 294.0, Yearly: 3150 } },
+        { mobil_id: 'MB-005', nama_mobil: 'Mitsubishi Colt Diesel FE', no_mobil: 'B 9771 PQR', status: 'Maintenance', trips: { Daily: 0, Weekly: 2, Monthly: 11, Yearly: 140 }, tonase: { Daily: 0, Weekly: 14.0, Monthly: 78.5, Yearly: 980 } }
+      ],
+
+      // Master Data Sopir (sopir_id, nama_sopir, no_telepon, no_sim, status)
+      drivers: [
+        { sopir_id: 'SP-001', nama_sopir: 'Budi Santoso', no_telepon: '0812-8890-1122', no_sim: 'SIM B2 - 89012344', status: 'Bertugas' },
+        { sopir_id: 'SP-002', nama_sopir: 'Slamet Riyadi', no_telepon: '0813-4455-6677', no_sim: 'SIM B2 - 77123990', status: 'Bertugas' },
+        { sopir_id: 'SP-003', nama_sopir: 'Dedi Kurniawan', no_telepon: '0857-2233-9988', no_sim: 'SIM B1 - 66541209', status: 'Tersedia' },
+        { sopir_id: 'SP-004', nama_sopir: 'Agus Setiawan', no_telepon: '0819-7766-5544', no_sim: 'SIM B2 - 99234112', status: 'Tersedia' }
+      ],
+
+      // Vendor Ekspedisi
+      expeditions: [
+        { ekspedisi_id: 'EKS-01', nama_ekspedisi: 'PT Ekspedisi Lintas Nusantara' },
+        { ekspedisi_id: 'EKS-02', nama_ekspedisi: 'CV Trans Cargo Utama' },
+        { ekspedisi_id: 'EKS-03', nama_ekspedisi: 'PT Samudra Darat Logistik' }
+      ],
+
+      // 1. Sales Request (SR)
+      salesRequests: [
+        {
+          sr_id: 'SR-2026-001',
+          client_id: 'CL-001',
+          tanggal_muat: '2026-11-15',
+          berat_muat_est: 15000,
+          lokasi_pengambilan: 'Gudang Cikarang Blok C2, Bekasi',
+          lokasi_tujuan: 'Kawasan Industri Rungkut, Surabaya',
+          nominal_est: 12500000,
+          status: 'Completed'
+        },
+        {
+          sr_id: 'SR-2026-002',
+          client_id: 'CL-002',
+          tanggal_muat: '2026-11-17',
+          berat_muat_est: 19500,
+          lokasi_pengambilan: 'Pabrik Baja Cilegon, Banten',
+          lokasi_tujuan: 'Pelabuhan Tanjung Emas, Semarang',
+          nominal_est: 14000000,
+          status: 'In Transit'
+        },
+        {
+          sr_id: 'SR-2026-003',
+          client_id: 'CL-001',
+          tanggal_muat: '2026-11-18',
+          berat_muat_est: 14800,
+          lokasi_pengambilan: 'Depo Marunda, Jakarta Utara',
+          lokasi_tujuan: 'Gudang Gedebage, Bandung',
+          nominal_est: 7500000,
+          status: 'In Transit'
+        },
+        {
+          sr_id: 'SR-2026-004',
+          client_id: 'CL-003',
+          tanggal_muat: '2026-11-20',
+          berat_muat_est: 12000,
+          lokasi_pengambilan: 'Sentra Agro Karawang, Jawa Barat',
+          lokasi_tujuan: 'Pasar Induk Jakabaring, Palembang',
+          nominal_est: 9500000,
+          status: 'Requested'
+        }
+      ],
+
+      // 2. Surat Jalan (SJ) & 3. Uang Jalan (UJ)
+      suratJalans: [
+        {
+          sj_id: 'SJ-2026-001',
+          sr_id: 'SR-2026-001',
+          ekspedisi_id: 'EKS-01',
+          mobil_id: 'MB-003',
+          sopir_id: 'SP-003',
+          tanggal_muat_akt: '2026-11-15',
+          berat_muat_akt: 15000,
+          uj_id: 'UJ-2026-001',
+          uang_jalan: 4800000, // Sudah termasuk BBM & operasional
+          status: 'Delivered',
+          riwayat_sopir: []
+        },
+        {
+          sj_id: 'SJ-2026-002',
+          sr_id: 'SR-2026-002',
+          ekspedisi_id: 'EKS-02',
+          mobil_id: 'MB-002',
+          sopir_id: 'SP-002',
+          tanggal_muat_akt: '2026-11-17',
+          berat_muat_akt: 19500,
+          uj_id: 'UJ-2026-002',
+          uang_jalan: 5200000,
+          status: 'In Transit',
+          riwayat_sopir: [
+            {
+              old_sopir: 'Agus Setiawan (SP-004)',
+              new_sopir: 'Slamet Riyadi (SP-002)',
+              timestamp: '2026-11-17 14:20 WIB',
+              reason: 'Sopir awal mengalami demam tinggi sebelum masuk Tol Cipali',
+              updated_by: 'Admin / Dispatcher'
+            }
+          ]
+        },
+        {
+          sj_id: 'SJ-2026-003',
+          sr_id: 'SR-2026-003',
+          ekspedisi_id: 'EKS-01',
+          mobil_id: 'MB-001',
+          sopir_id: 'SP-001',
+          tanggal_muat_akt: '2026-11-18',
+          berat_muat_akt: 14800,
+          uj_id: 'UJ-2026-003',
+          uang_jalan: 2650000,
+          status: 'In Transit',
+          riwayat_sopir: []
+        }
+      ],
+
+      // 4. Terima Barang (TB)
+      terimaBarangs: [
+        {
+          tb_id: 'TB-2026-001',
+          sj_id: 'SJ-2026-001',
+          tanggal_bongkar: '2026-11-17',
+          berat_bongkar: 14950,
+          selisih_barang: 50 // 15000 - 14950 = 50 kg susut wajar
+        }
+      ],
+
+      // 5. Sales Invoice (SI) -> Piutang Client
+      salesInvoices: [
+        {
+          si_id: 'SI-2026-001',
+          tb_id: 'TB-2026-001',
+          sr_id: 'SR-2026-001',
+          client_id: 'CL-001',
+          tanggal_invoice: '2026-11-17',
+          total_tagihan: 12500000,
+          potong_deposit: 12500000,
+          piutang_client: 0,
+          status: 'Paid (via Deposit)'
+        },
+        {
+          si_id: 'SI-2026-000',
+          tb_id: 'TB-2026-000',
+          sr_id: 'SR-2026-000',
+          client_id: 'CL-002',
+          tanggal_invoice: '2026-11-10',
+          total_tagihan: 18500000,
+          potong_deposit: 10000000,
+          piutang_client: 8500000,
+          status: 'Unpaid'
+        }
+      ],
+
+      // 6. Purchase Invoice (PI) -> Hutang Ekspedisi
+      purchaseInvoices: [
+        {
+          pi_id: 'PI-2026-001',
+          sj_id: 'SJ-2026-001',
+          ekspedisi_id: 'EKS-01',
+          tanggal_pi: '2026-11-17',
+          hutang_ekspedisi: 9200000,
+          tb_verified: true,
+          status: 'Unpaid'
+        },
+        {
+          pi_id: 'PI-2026-002',
+          sj_id: 'SJ-2026-002',
+          ekspedisi_id: 'EKS-02',
+          tanggal_pi: '2026-11-17',
+          hutang_ekspedisi: 10500000,
+          tb_verified: false, // Menunggu TB
+          status: 'Pending TB'
+        }
+      ],
+
+      // Riwayat Mutasi Deposit Client
+      depositLogs: [
+        { id: 'DEP-001', tanggal: '2026-11-01 09:00', client_id: 'CL-001', tipe: 'Top-Up', referensi: 'Transfer BCA #8821', nominal: 65000000, saldo_akhir: 65000000 },
+        { id: 'DEP-002', tanggal: '2026-11-15 10:15', client_id: 'CL-001', tipe: 'Pemotongan SR', referensi: 'SR-2026-001', nominal: -12500000, saldo_akhir: 52500000 },
+        { id: 'DEP-003', tanggal: '2026-11-18 08:30', client_id: 'CL-001', tipe: 'Pemotongan SR', referensi: 'SR-2026-003', nominal: -7500000, saldo_akhir: 45000000 },
+        { id: 'DEP-004', tanggal: '2026-11-05 11:20', client_id: 'CL-002', tipe: 'Top-Up', referensi: 'Transfer Mandiri #1190', nominal: 42500000, saldo_akhir: 42500000 },
+        { id: 'DEP-005', tanggal: '2026-11-17 09:45', client_id: 'CL-002', tipe: 'Pemotongan SR', referensi: 'SR-2026-002', nominal: -14000000, saldo_akhir: 28500000 },
+        { id: 'DEP-006', tanggal: '2026-11-10 14:00', client_id: 'CL-003', tipe: 'Top-Up', referensi: 'Transfer BNI #4402', nominal: 21500000, saldo_akhir: 21500000 },
+        { id: 'DEP-007', tanggal: '2026-11-19 11:10', client_id: 'CL-003', tipe: 'Pemotongan SR', referensi: 'SR-2026-004', nominal: -9500000, saldo_akhir: 12000000 }
+      ]
+    };
+
+    // Chart instances registry
+    let charts = {};
+
+    // =========================================================================
+    // 2. UTILITY & HELPER FUNCTIONS
+    // =========================================================================
+    function formatIDR(amount) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(amount || 0);
+    }
+
+    function formatNumber(num) {
+      return new Intl.NumberFormat('id-ID').format(num || 0);
+    }
+
+    function getClientName(clientId) {
+      const c = state.clients.find(item => item.client_id === clientId);
+      return c ? c.nama_client : clientId;
+    }
+
+    function getVehicleLabel(mobilId) {
+      const v = state.vehicles.find(item => item.mobil_id === mobilId);
+      return v ? `${v.nama_mobil} (${v.no_mobil})` : mobilId;
+    }
+
+    function getDriverName(sopirId) {
+      const d = state.drivers.find(item => item.sopir_id === sopirId);
+      return d ? `${d.nama_sopir} (${d.sopir_id})` : sopirId;
+    }
+
+    function getExpeditionName(eksId) {
+      const e = state.expeditions.find(item => item.ekspedisi_id === eksId);
+      return e ? e.nama_ekspedisi : eksId;
+    }
+
+    function showToast(title, message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-950 border-emerald-500 text-emerald-50',
+        error: 'bg-rose-950 border-rose-500 text-rose-50',
+        warning: 'bg-amber-950 border-amber-500 text-amber-50',
+        info: 'bg-slate-900 border-sky-500 text-slate-50'
+      };
+      const iconColor = {
+        success: 'text-emerald-400',
+        error: 'text-rose-400',
+        warning: 'text-amber-400',
+        info: 'text-sky-400'
+      };
+      toast.className = `pointer-events-auto p-4 rounded-2xl border-l-4 shadow-xl transition-all duration-300 transform translate-y-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="${iconColor[type]} mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              ${type === 'error'
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />'
+                : '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />'}
+            </svg>
+          </div>
+          <div class="flex-1 text-xs">
+            <p class="font-bold text-sm mb-0.5">${title}</p>
+            <p class="opacity-90 leading-relaxed">${message}</p>
+          </div>
+        </div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4200);
+    }
+
+    function toggleSidebar() {
+      const sb = document.getElementById('sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
+      sb.classList.toggle('-translate-x-full');
+      bd.classList.toggle('hidden');
+    }
+
+    // =========================================================================
+    // 3. ROLE-BASED ACCESS CONTROL & NAVIGATION
+    // =========================================================================
+    const menuItems = [
+      {
+        id: 'dashboard',
+        label: 'Executive Dashboard',
+        badge: 'Owner',
+        roles: ['Owner', 'Admin'], // Admin sees it locked to demonstrate RBAC restriction
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />'
+      },
+      {
+        id: 'sr',
+        label: 'Sales Request (SR)',
+        badge: 'SR',
+        roles: ['Owner', 'Admin', 'Client'],
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />'
+      },
+      {
+        id: 'sj',
+        label: 'Surat Jalan & Uang Jalan',
+        badge: 'SJ / UJ',
+        roles: ['Owner', 'Admin'],
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />'
+      },
+      {
+        id: 'tb',
+        label: 'Terima Barang & Selisih',
+        badge: 'TB',
+        roles: ['Owner', 'Admin'],
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />'
+      },
+      {
+        id: 'finance',
+        label: 'Invoice & Deposit Client',
+        badge: 'SI / PI',
+        roles: ['Owner', 'Admin', 'Client'],
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />'
+      },
+      {
+        id: 'master',
+        label: 'Master Mobil & Sopir',
+        badge: 'Master',
+        roles: ['Owner', 'Admin'],
+        icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />'
+      }
+    ];
+
+    function switchRole(role) {
+      state.currentRole = role;
+      if (role === 'Client') {
+        state.activeTab = 'sr';
+      } else if (role === 'Admin' && state.activeTab === 'dashboard') {
+        state.activeTab = 'sr';
+      } else if (role === 'Owner') {
+        state.activeTab = 'dashboard';
+      }
+      renderApp();
+      showToast(`Mode Peran: ${role}`, `Tampilan disesuaikan dengan hak akses ${role}.`, 'info');
+    }
+
+    function navigateTo(tabId) {
+      state.activeTab = tabId;
+      if (window.innerWidth < 1024) {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-backdrop').classList.add('hidden');
+      }
+      renderApp();
+    }
+
+    function renderNavigation() {
+      // Update topbar role buttons
+      ['Owner', 'Admin', 'Client'].forEach(r => {
+        const btn = document.getElementById(`role-btn-${r}`);
+        if (r === state.currentRole) {
+          btn.className = 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-amber-400 shadow-xs transition-all';
+        } else {
+          btn.className = 'role-btn px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition-all';
+        }
+      });
+
+      // Update sidebar identity
+      const roleNames = {
+        Owner: 'Hendra Wijaya (Owner)',
+        Admin: 'Siti Rahmawati (Dispatcher)',
+        Client: 'Rina Marlina (PT Sumber Makmur Jaya)'
+      };
+      document.getElementById('sidebar-role-badge').textContent = state.currentRole;
+      document.getElementById('sidebar-user-name').textContent = roleNames[state.currentRole];
+
+      // Build sidebar items
+      const nav = document.getElementById('sidebar-nav');
+      nav.innerHTML = menuItems
+        .filter(item => item.roles.includes(state.currentRole))
+        .map(item => {
+          const isActive = state.activeTab === item.id;
+          const isLocked = item.id === 'dashboard' && state.currentRole !== 'Owner';
+          return `
+            <button onclick="navigateTo('${item.id}')"
+              class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                isActive
+                  ? 'bg-amber-500 text-slate-950 shadow-sm'
+                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+              }">
+              <div class="flex items-center gap-3 truncate">
+                <svg class="w-5 h-5 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  ${item.icon}
+                </svg>
+                <span class="truncate">${item.label}</span>
+              </div>
+              ${
+                isLocked
+                  ? '<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">Locked</span>'
+                  : `<span class="text-[10px] font-bold px-2 py-0.5 rounded ${isActive ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-800 text-slate-400'}">${item.badge}</span>`
+              }
+            </button>
+          `;
+        })
+        .join('');
+    }
+
+    // =========================================================================
+    // 4. MODULE 1: EXECUTIVE REPORT DASHBOARD (EKSKLUSIF OWNER)
+    // =========================================================================
+    function setDashboardPeriod(period) {
+      state.dashboardPeriod = period;
+      renderApp();
+    }
+
+    function renderExecutiveDashboard() {
+      document.getElementById('page-title').textContent = 'Executive Report Dashboard (Owner)';
+      document.getElementById('page-subtitle').textContent = 'Kontrol akses eksklusif Owner: Monitoring Armada, Deposit, Piutang & Hutang Ekspedisi';
+
+      // RBAC Guard: Strict Owner-Only Enforcement
+      if (state.currentRole !== 'Owner') {
+        return `
+          <div class="bg-white rounded-2xl border border-rose-200 p-8 sm:p-12 text-center max-w-2xl mx-auto mt-8 shadow-sm">
+            <div class="w-16 h-16 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-5">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+            </div>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700 mb-3">Akses Ditolak (RBAC Policy FR-08.1)</span>
+            <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Halaman Eksklusif untuk Role Owner</h2>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">
+              Sesuai kebijakan keamanan sistem (FR-08.1), <b>Executive Report Dashboard</b> diisolasi secara ketat dan hanya dapat diakses oleh pengguna dengan peran <b>Owner</b>.
             </p>
-            
-            <div class="flex flex-wrap justify-center gap-6 text-sm">
-                <a href="mailto:dicky.armando@ymail.com" class="flex items-center gap-2 px-5 py-3 bg-slate-800 rounded-lg hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-                    <i class="fas fa-envelope text-blue-400"></i> dicky.armando@ymail.com
-                </a>
-                <a href="https://wa.me/6281291137017" target="_blank" class="flex items-center gap-2 px-5 py-3 bg-slate-800 rounded-lg hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
-                    <i class="fas fa-phone text-blue-400"></i> +62 812 9113 7017
-                </a>
-            </div>
+            <button onclick="switchRole('Owner')" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-sm shadow-sm">
+              Beralih ke Mode Owner Sekarang
+            </button>
+          </div>
+        `;
+      }
+
+      const period = state.dashboardPeriod;
+      const totalTrips = state.vehicles.reduce((sum, v) => sum + v.trips[period], 0);
+      const totalTonase = state.vehicles.reduce((sum, v) => sum + v.tonase[period], 0).toFixed(1);
+      const totalDeposit = state.clients.reduce((sum, c) => sum + c.saldo_deposit, 0);
+      const totalPiutang = state.salesInvoices.reduce((sum, si) => sum + si.piutang_client, 0);
+      const totalHutang = state.purchaseInvoices
+        .filter(pi => pi.status !== 'Paid')
+        .reduce((sum, pi) => sum + pi.hutang_ekspedisi, 0);
+
+      return `
+        <!-- Top Controls & Timeframe Filter -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-xs">
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+              Eksklusif Owner
+            </span>
+            <span class="text-xs sm:text-sm text-slate-600 font-medium">Periode Laporan Armada: <b>${period}</b></span>
+          </div>
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl self-start sm:self-auto">
+            ${['Daily', 'Weekly', 'Monthly', 'Yearly'].map(p => `
+              <button onclick="setDashboardPeriod('${p}')"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  period === p ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }">
+                ${p}
+              </button>
+            `).join('')}
+          </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="py-8 text-center text-xs text-slate-500 border-t border-slate-800">
-        <p>© 2026 Dicky Armando Dimas Setiaji. All rights reserved.</p>
-    </footer>
+        <!-- 5 KPI Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pengiriman (${period})</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-2">${formatNumber(totalTrips)} <span class="text-xs font-semibold text-slate-500">Trip</span></p>
+            <p class="text-xs text-emerald-600 font-semibold mt-2">Armada aktif beroperasi</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tonase Kiriman (${period})</p>
+            <p class="text-2xl font-extrabold text-slate-900 mt-2">${formatNumber(totalTonase)} <span class="text-xs font-semibold text-slate-500">Ton</span></p>
+            <p class="text-xs text-sky-600 font-semibold mt-2">Akumulasi muatan terverifikasi</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sisa Deposit Client</p>
+            <p class="text-xl font-extrabold text-emerald-700 mt-2">${formatIDR(totalDeposit)}</p>
+            <p class="text-xs text-slate-500 mt-2">Total saldo ${state.clients.length} Client</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Piutang Client (AR)</p>
+            <p class="text-xl font-extrabold text-amber-600 mt-2">${formatIDR(totalPiutang)}</p>
+            <p class="text-xs text-slate-500 mt-2">Sales Invoice (SI) Unpaid</p>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hutang Ekspedisi (AP)</p>
+            <p class="text-xl font-extrabold text-rose-600 mt-2">${formatIDR(totalHutang)}</p>
+            <p class="text-xs text-slate-500 mt-2">Purchase Invoice (PI) aktif</p>
+          </div>
+        </div>
 
+        <!-- Charts Row: Bar Chart (Armada) + 2 Pie Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Bar Chart: Monitoring Trip & Tonase Mobil -->
+          <div class="lg:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Grafik Pengiriman &amp; Tonase per Mobil</h3>
+                <p class="text-xs text-slate-500">Perbandingan jumlah trip (count) &amp; tonase periode <b>${period}</b></p>
+              </div>
+            </div>
+            <div class="relative h-64 w-full">
+              <canvas id="chart-fleet-bar"></canvas>
+            </div>
+          </div>
+
+          <!-- Pie Chart 1: Status Mobil -->
+          <div class="lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
+            <h3 class="font-bold text-slate-900 text-base mb-1">Status Armada</h3>
+            <p class="text-xs text-slate-500 mb-4">Proporsi kesiapan unit mobil</p>
+            <div class="relative h-56 w-full flex items-center justify-center">
+              <canvas id="chart-status-pie"></canvas>
+            </div>
+          </div>
+
+          <!-- Pie Chart 2: Piutang vs Hutang -->
+          <div class="lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col">
+            <h3 class="font-bold text-slate-900 text-base mb-1">Piutang vs Hutang</h3>
+            <p class="text-xs text-slate-500 mb-4">Komposisi AR &amp; AP saat ini</p>
+            <div class="relative h-56 w-full flex items-center justify-center">
+              <canvas id="chart-finance-pie"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. Laporan Monitoring Mobil Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">1. Laporan Monitoring Mobil (${period})</h3>
+              <p class="text-xs text-slate-500">Status operasional terkini, jumlah pengiriman (count), dan total tonase kiriman per armada</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-6">ID Mobil</th>
+                  <th class="py-3.5 px-6">Nama Mobil &amp; No. Polisi</th>
+                  <th class="py-3.5 px-6">Status Operasional</th>
+                  <th class="py-3.5 px-6 text-right">Jumlah Pengiriman (${period})</th>
+                  <th class="py-3.5 px-6 text-right">Total Tonase (${period})</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                ${state.vehicles.map(v => {
+                  const statusBadge = {
+                    'Tersedia': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                    'Sedang Bertugas': 'bg-amber-100 text-amber-800 border-amber-200',
+                    'Maintenance': 'bg-rose-100 text-rose-800 border-rose-200'
+                  }[v.status] || 'bg-slate-100 text-slate-700';
+                  return `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3.5 px-6 font-bold text-slate-700">${v.mobil_id}</td>
+                      <td class="py-3.5 px-6">
+                        <p class="font-bold text-slate-900">${v.nama_mobil}</p>
+                        <p class="text-xs text-slate-500 font-mono">${v.no_mobil}</p>
+                      </td>
+                      <td class="py-3.5 px-6">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${statusBadge}">${v.status}</span>
+                      </td>
+                      <td class="py-3.5 px-6 text-right font-bold text-slate-900">${v.trips[period]} Trip</td>
+                      <td class="py-3.5 px-6 text-right font-extrabold text-sky-700">${formatNumber(v.tonase[period])} Ton</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Financial Reports Grid: 2. Deposit Client | 3. Piutang Client | 4. Hutang Ekspedisi -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- 2. Report Deposit Sisa Setiap Client -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-sm">2. Report Deposit Sisa Client</h3>
+              <p class="text-xs text-slate-500">Saldo deposit tersedia per Client</p>
+            </div>
+            <div class="divide-y divide-slate-100 flex-1">
+              ${state.clients.map(c => `
+                <div class="p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-xs font-bold text-amber-600">${c.client_id}</p>
+                    <p class="text-sm font-bold text-slate-900">${c.nama_client}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-extrabold text-emerald-700">${formatIDR(c.saldo_deposit)}</p>
+                    <span class="text-[11px] text-slate-400">Saldo Aktif</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 3. Report Piutang Client -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-sm">3. Report Piutang Client (SI)</h3>
+              <p class="text-xs text-slate-500">Tagihan Sales Invoice belum terbayar</p>
+            </div>
+            <div class="divide-y divide-slate-100 flex-1">
+              ${state.salesInvoices.map(si => `
+                <div class="p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-xs font-bold text-slate-700">${si.si_id} • ${getClientName(si.client_id)}</p>
+                    <p class="text-xs text-slate-500">Ref TB: ${si.tb_id}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-extrabold ${si.piutang_client > 0 ? 'text-amber-600' : 'text-emerald-600'}">${formatIDR(si.piutang_client)}</p>
+                    <span class="text-[11px] font-semibold ${si.piutang_client > 0 ? 'text-amber-700' : 'text-emerald-700'}">${si.status}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 4. Report Hutang kepada Ekspedisi -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+            <div class="px-5 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-sm">4. Report Hutang Ekspedisi (PI)</h3>
+              <p class="text-xs text-slate-500">Kewajiban Purchase Invoice ke vendor</p>
+            </div>
+            <div class="divide-y divide-slate-100 flex-1">
+              ${state.purchaseInvoices.map(pi => `
+                <div class="p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-xs font-bold text-slate-700">${pi.pi_id} • ${getExpeditionName(pi.ekspedisi_id)}</p>
+                    <p class="text-xs text-slate-500">Ref SJ: ${pi.sj_id}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-extrabold ${pi.status === 'Paid' ? 'text-emerald-600' : 'text-rose-600'}">${formatIDR(pi.hutang_ekspedisi)}</p>
+                    <span class="text-[11px] font-semibold text-slate-500">${pi.status}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function initDashboardCharts() {
+      if (state.activeTab !== 'dashboard' || state.currentRole !== 'Owner') return;
+
+      // Destroy previous chart instances if any
+      Object.values(charts).forEach(c => c && c.destroy());
+      charts = {};
+
+      const period = state.dashboardPeriod;
+
+      // 1. Fleet Bar Chart (Trip & Tonase)
+      const ctxBar = document.getElementById('chart-fleet-bar');
+      if (ctxBar) {
+        charts.fleetBar = new Chart(ctxBar, {
+          type: 'bar',
+          data: {
+            labels: state.vehicles.map(v => v.no_mobil),
+            datasets: [
+              {
+                label: `Jumlah Pengiriman (Trip)`,
+                data: state.vehicles.map(v => v.trips[period]),
+                backgroundColor: '#0f172a',
+                borderRadius: 6,
+                yAxisID: 'y'
+              },
+              {
+                label: `Total Tonase (Ton)`,
+                data: state.vehicles.map(v => v.tonase[period]),
+                backgroundColor: '#f59e0b',
+                borderRadius: 6,
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } } }
+            },
+            scales: {
+              y: { type: 'linear', position: 'left', beginAtZero: true, title: { display: true, text: 'Trip', font: { size: 11 } } },
+              y1: { type: 'linear', position: 'right', beginAtZero: true, grid: { drawOnChartArea: false }, title: { display: true, text: 'Ton', font: { size: 11 } } }
+            }
+          }
+        });
+      }
+
+      // 2. Status Mobil Pie Chart
+      const ctxStatus = document.getElementById('chart-status-pie');
+      if (ctxStatus) {
+        const countTersedia = state.vehicles.filter(v => v.status === 'Tersedia').length;
+        const countBertugas = state.vehicles.filter(v => v.status === 'Sedang Bertugas').length;
+        const countMaint = state.vehicles.filter(v => v.status === 'Maintenance').length;
+
+        charts.statusPie = new Chart(ctxStatus, {
+          type: 'doughnut',
+          data: {
+            labels: ['Tersedia', 'Sedang Bertugas', 'Maintenance'],
+            datasets: [{
+              data: [countTersedia, countBertugas, countMaint],
+              backgroundColor: ['#10b981', '#f59e0b', '#f43f5e'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Inter' } } }
+            }
+          }
+        });
+      }
+
+      // 3. Finance Piutang vs Hutang Pie Chart
+      const ctxFin = document.getElementById('chart-finance-pie');
+      if (ctxFin) {
+        const totalPiutang = state.salesInvoices.reduce((sum, si) => sum + si.piutang_client, 0);
+        const totalHutang = state.purchaseInvoices.filter(pi => pi.status !== 'Paid').reduce((sum, pi) => sum + pi.hutang_ekspedisi, 0);
+
+        charts.financePie = new Chart(ctxFin, {
+          type: 'pie',
+          data: {
+            labels: ['Piutang Client (AR)', 'Hutang Ekspedisi (AP)'],
+            datasets: [{
+              data: [totalPiutang, totalHutang],
+              backgroundColor: ['#d97706', '#e11d48'],
+              borderWidth: 2,
+              borderColor: '#ffffff'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11, family: 'Inter' } } }
+            }
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 5. MODULE 2: SALES REQUEST (SR) & AUTO DEPOSIT DEDUCTION
+    // =========================================================================
+    function updateSelectedClientDepositInfo() {
+      const sel = document.getElementById('sr-client-id');
+      const box = document.getElementById('sr-client-balance-display');
+      if (!sel || !box) return;
+      const client = state.clients.find(c => c.client_id === sel.value);
+      if (client) {
+        box.textContent = formatIDR(client.saldo_deposit);
+      }
+    }
+
+    function submitSalesRequest(e) {
+      e.preventDefault();
+      const clientId = document.getElementById('sr-client-id').value;
+      const tanggalMuat = document.getElementById('sr-tanggal-muat').value;
+      const beratEst = parseFloat(document.getElementById('sr-berat-est').value);
+      const asal = document.getElementById('sr-asal').value.trim();
+      const tujuan = document.getElementById('sr-tujuan').value.trim();
+      const nominalEst = parseFloat(document.getElementById('sr-nominal-est').value);
+
+      const client = state.clients.find(c => c.client_id === clientId);
+      if (!client) return;
+
+      // Validasi Saldo Deposit Client (FR-06.3)
+      if (nominalEst > client.saldo_deposit) {
+        showToast(
+          'Saldo Deposit Tidak Mencukupi',
+          `Nominal pesanan (${formatIDR(nominalEst)}) melebihi sisa deposit ${client.nama_client} (${formatIDR(client.saldo_deposit)}). Silakan lakukan Top-Up deposit terlebih dahulu.`,
+          'error'
+        );
+        return;
+      }
+
+      // Generate SR ID
+      const nextNum = String(state.salesRequests.length + 1).padStart(3, '0');
+      const newSrId = `SR-2026-${nextNum}`;
+
+      // Potong saldo deposit otomatis
+      client.saldo_deposit -= nominalEst;
+
+      // Catat mutasi deposit
+      state.depositLogs.unshift({
+        id: `DEP-${String(state.depositLogs.length + 1).padStart(3, '0')}`,
+        tanggal: '2026-11-19 16:05',
+        client_id: clientId,
+        tipe: 'Pemotongan SR',
+        referensi: newSrId,
+        nominal: -nominalEst,
+        saldo_akhir: client.saldo_deposit
+      });
+
+      // Simpan SR
+      state.salesRequests.unshift({
+        sr_id: newSrId,
+        client_id: clientId,
+        tanggal_muat: tanggalMuat,
+        berat_muat_est: beratEst,
+        lokasi_pengambilan: asal,
+        lokasi_tujuan: tujuan,
+        nominal_est: nominalEst,
+        status: 'Requested'
+      });
+
+      showToast(
+        `Sales Request ${newSrId} Berhasil Dibuat`,
+        `Saldo deposit ${client.nama_client} otomatis terpotong sebesar ${formatIDR(nominalEst)}.`,
+        'success'
+      );
+      renderApp();
+    }
+
+    function renderSalesRequestModule() {
+      document.getElementById('page-title').textContent = 'Sales Request (SR) — Permintaan Pengiriman';
+      document.getElementById('page-subtitle').textContent = 'Tahap 1: Input permintaan pengiriman Client & pemotongan otomatis saldo deposit';
+
+      const isClientRole = state.currentRole === 'Client';
+      const availableClients = isClientRole
+        ? state.clients.filter(c => c.client_id === state.activeClientId)
+        : state.clients;
+
+      const visibleSRs = isClientRole
+        ? state.salesRequests.filter(sr => sr.client_id === state.activeClientId)
+        : state.salesRequests;
+
+      const defaultClient = availableClients[0];
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Form Buat SR -->
+          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs self-start">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Dokumen Awal (SR)</span>
+                <h2 class="text-lg font-extrabold text-slate-900">Buat Sales Request Baru</h2>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-400 text-xs font-bold">Auto-ID: SR</span>
+            </div>
+
+            <form onsubmit="submitSalesRequest(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Client Pemesan *</label>
+                <select id="sr-client-id" onchange="updateSelectedClientDepositInfo()" ${isClientRole ? 'disabled' : ''} class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                  ${availableClients.map(c => `<option value="${c.client_id}">${c.client_id} — ${c.nama_client}</option>`).join('')}
+                </select>
+                <div class="mt-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                  <span class="text-xs font-semibold text-emerald-800">Sisa Saldo Deposit Client:</span>
+                  <span id="sr-client-balance-display" class="text-sm font-extrabold text-emerald-700">${formatIDR(defaultClient.saldo_deposit)}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Muat *</label>
+                  <input type="date" id="sr-tanggal-muat" value="2026-11-21" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Muat Est (Kg) *</label>
+                  <input type="number" id="sr-berat-est" min="100" step="50" value="15000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Pengambilan (Origin) *</label>
+                <input type="text" id="sr-asal" placeholder="Contoh: Gudang Utama Cikarang, Bekasi" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Tujuan (Destination) *</label>
+                <input type="text" id="sr-tujuan" placeholder="Contoh: Kawasan Industri Kendal, Jawa Tengah" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Estimasi Biaya Pengiriman (IDR) *</label>
+                <input type="number" id="sr-nominal-est" min="500000" step="100000" value="11000000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                <p class="text-[11px] text-slate-500 mt-1">* Nominal ini akan otomatis memotong saldo deposit Client saat order dikirim.</p>
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-sm shadow-sm transition-all">
+                Ajukan Sales Request &amp; Potong Deposit
+              </button>
+            </form>
+          </div>
+
+          <!-- Daftar Sales Request -->
+          <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Daftar Dokumen Sales Request (SR)</h3>
+                <p class="text-xs text-slate-500">Status permintaan pengiriman dari Client</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">${visibleSRs.length} Dokumen</span>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+              ${visibleSRs.map(sr => {
+                const badgeStyle = {
+                  'Requested': 'bg-amber-100 text-amber-800 border-amber-200',
+                  'In Transit': 'bg-sky-100 text-sky-800 border-sky-200',
+                  'Completed': 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                }[sr.status] || 'bg-slate-100 text-slate-700';
+
+                return `
+                  <div class="p-5 hover:bg-slate-50/70 transition-colors">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <div class="flex items-center gap-2.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-amber-400 font-bold text-xs">${sr.sr_id}</span>
+                        <span class="font-bold text-sm text-slate-900">${getClientName(sr.client_id)}</span>
+                      </div>
+                      <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${badgeStyle}">${sr.status}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-600 mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                      <div>
+                        <span class="text-slate-400 block">Asal (Origin):</span>
+                        <span class="font-semibold text-slate-800">${sr.lokasi_pengambilan}</span>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Tujuan (Destination):</span>
+                        <span class="font-semibold text-slate-800">${sr.lokasi_tujuan}</span>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Tgl Muat &amp; Berat Est:</span>
+                        <span class="font-semibold text-slate-800">${sr.tanggal_muat} • ${formatNumber(sr.berat_muat_est)} Kg</span>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Nominal (Potong Deposit):</span>
+                        <span class="font-extrabold text-emerald-700">${formatIDR(sr.nominal_est)}</span>
+                      </div>
+                    </div>
+
+                    ${sr.status === 'Requested' && !isClientRole ? `
+                      <div class="mt-3 flex justify-end">
+                        <button onclick="navigateTo('sj')" class="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-bold">
+                          Proses ke Surat Jalan (SJ) →
+                        </button>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. MODULE 3: SURAT JALAN (SJ) + UANG JALAN (UJ) + GANTI SOPIR
+    // =========================================================================
+    function submitSuratJalan(e) {
+      e.preventDefault();
+      const srId = document.getElementById('sj-sr-id').value;
+      const ekspedisiId = document.getElementById('sj-ekspedisi-id').value;
+      const mobilId = document.getElementById('sj-mobil-id').value;
+      const sopirId = document.getElementById('sj-sopir-id').value;
+      const tglMuatAkt = document.getElementById('sj-tgl-muat').value;
+      const beratMuatAkt = parseFloat(document.getElementById('sj-berat-muat').value);
+      const uangJalan = parseFloat(document.getElementById('sj-uang-jalan').value);
+      const biayaEkspedisi = parseFloat(document.getElementById('sj-biaya-ekspedisi').value);
+
+      const sr = state.salesRequests.find(item => item.sr_id === srId);
+      if (!sr) return;
+
+      const idx = String(state.suratJalans.length + 1).padStart(3, '0');
+      const newSjId = `SJ-2026-${idx}`;
+      const newUjId = `UJ-2026-${idx}`;
+      const newPiId = `PI-2026-${String(state.purchaseInvoices.length + 1).padStart(3, '0')}`;
+
+      // Update SR status
+      sr.status = 'In Transit';
+
+      // Update Vehicle & Driver status
+      const veh = state.vehicles.find(v => v.mobil_id === mobilId);
+      if (veh) veh.status = 'Sedang Bertugas';
+      const drv = state.drivers.find(d => d.sopir_id === sopirId);
+      if (drv) drv.status = 'Bertugas';
+
+      // Create SJ + UJ
+      state.suratJalans.unshift({
+        sj_id: newSjId,
+        sr_id: srId,
+        ekspedisi_id: ekspedisiId,
+        mobil_id: mobilId,
+        sopir_id: sopirId,
+        tanggal_muat_akt: tglMuatAkt,
+        berat_muat_akt: beratMuatAkt,
+        uj_id: newUjId,
+        uang_jalan: uangJalan,
+        status: 'In Transit',
+        riwayat_sopir: []
+      });
+
+      // Automatically register Purchase Invoice (PI) based on SJ (payable after TB)
+      state.purchaseInvoices.unshift({
+        pi_id: newPiId,
+        sj_id: newSjId,
+        ekspedisi_id: ekspedisiId,
+        tanggal_pi: tglMuatAkt,
+        hutang_ekspedisi: biayaEkspedisi,
+        tb_verified: false,
+        status: 'Pending TB'
+      });
+
+      showToast(
+        `${newSjId} & ${newUjId} Berhasil Diterbitkan`,
+        `Armada ditugaskan & Purchase Invoice (${newPiId}) tercatat menunggu verifikasi Terima Barang (TB).`,
+        'success'
+      );
+      renderApp();
+    }
+
+    function openDriverModal(sjId) {
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      document.getElementById('dc-sj-id').value = sj.sj_id;
+      document.getElementById('dc-sj-label').textContent = sj.sj_id;
+      document.getElementById('dc-old-driver').textContent = getDriverName(sj.sopir_id);
+      document.getElementById('dc-reason').value = '';
+
+      const select = document.getElementById('dc-new-driver');
+      select.innerHTML = state.drivers
+        .filter(d => d.sopir_id !== sj.sopir_id)
+        .map(d => `<option value="${d.sopir_id}">${d.nama_sopir} (${d.sopir_id}) — Status: ${d.status}</option>`)
+        .join('');
+
+      const modal = document.getElementById('modal-driver-change');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDriverModal() {
+      const modal = document.getElementById('modal-driver-change');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function submitDriverChange(e) {
+      e.preventDefault();
+      const sjId = document.getElementById('dc-sj-id').value;
+      const newSopirId = document.getElementById('dc-new-driver').value;
+      const reason = document.getElementById('dc-reason').value.trim();
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      const oldDriverLabel = getDriverName(sj.sopir_id);
+      const newDriverLabel = getDriverName(newSopirId);
+
+      // Update status sopir lama & baru
+      const oldDrv = state.drivers.find(d => d.sopir_id === sj.sopir_id);
+      if (oldDrv) oldDrv.status = 'Tersedia';
+      const newDrv = state.drivers.find(d => d.sopir_id === newSopirId);
+      if (newDrv) newDrv.status = 'Bertugas';
+
+      // Append immutable Driver Change Log (FR-04.4)
+      sj.riwayat_sopir.push({
+        old_sopir: oldDriverLabel,
+        new_sopir: newDriverLabel,
+        timestamp: '2026-11-19 16:08 WIB',
+        reason: reason,
+        updated_by: state.currentRole
+      });
+
+      sj.sopir_id = newSopirId;
+      closeDriverModal();
+      showToast(
+        `Sopir Pada ${sj.sj_id} Diperbarui`,
+        `Diganti dari ${oldDriverLabel} menjadi ${newDriverLabel}. Riwayat tercatat di Driver Change Log.`,
+        'warning'
+      );
+      renderApp();
+    }
+
+    function openHistoryModal(sjId) {
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      document.getElementById('dh-sj-subtitle').textContent = `${sj.sj_id} • Sopir Aktif: ${getDriverName(sj.sopir_id)}`;
+      const content = document.getElementById('dh-content');
+
+      if (!sj.riwayat_sopir || sj.riwayat_sopir.length === 0) {
+        content.innerHTML = `<p class="text-sm text-slate-500 text-center py-6">Belum ada riwayat pergantian sopir pada Surat Jalan ini.</p>`;
+      } else {
+        content.innerHTML = sj.riwayat_sopir.map((log, i) => `
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-amber-700">Perubahan #${i + 1}</span>
+              <span class="text-slate-500 font-mono">${log.timestamp}</span>
+            </div>
+            <p class="text-slate-700"><span class="text-slate-400">Sopir Lama:</span> <b class="line-through text-rose-600">${log.old_sopir}</b></p>
+            <p class="text-slate-700"><span class="text-slate-400">Sopir Baru:</span> <b class="text-emerald-700">${log.new_sopir}</b></p>
+            <p class="text-slate-700"><span class="text-slate-400">Alasan:</span> ${log.reason}</p>
+            <p class="text-slate-400 pt-1">Diubah oleh: <b>${log.updated_by}</b></p>
+          </div>
+        `).join('');
+      }
+
+      const modal = document.getElementById('modal-driver-history');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHistoryModal() {
+      const modal = document.getElementById('modal-driver-history');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderSuratJalanModule() {
+      document.getElementById('page-title').textContent = 'Surat Jalan (SJ) & Uang Jalan (UJ)';
+      document.getElementById('page-subtitle').textContent = 'Tahap 2: Penugasan ekspedisi, armada, sopir, uang jalan (termasuk BBM), & pergantian sopir';
+
+      const pendingSRs = state.salesRequests.filter(sr => sr.status === 'Requested');
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Form Terbitkan SJ & UJ -->
+          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs self-start">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-sky-600">Penugasan Armada</span>
+                <h2 class="text-lg font-extrabold text-slate-900">Terbitkan SJ &amp; Uang Jalan</h2>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-sky-300 text-xs font-bold">SJ + UJ</span>
+            </div>
+
+            ${pendingSRs.length === 0 ? `
+              <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                <p class="text-sm font-bold text-slate-800">Semua Sales Request Sudah Diproses</p>
+                <p class="text-xs text-slate-500">Buat Sales Request (SR) baru terlebih dahulu untuk menerbitkan Surat Jalan.</p>
+                <button onclick="navigateTo('sr')" class="mt-2 px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">
+                  + Buat Sales Request Baru
+                </button>
+              </div>
+            ` : `
+              <form onsubmit="submitSuratJalan(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pilih Sales Request (SR) *</label>
+                  <select id="sj-sr-id" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${pendingSRs.map(sr => `<option value="${sr.sr_id}">${sr.sr_id} — ${getClientName(sr.client_id)} (${formatNumber(sr.berat_muat_est)} Kg)</option>`).join('')}
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Vendor Ekspedisi *</label>
+                  <select id="sj-ekspedisi-id" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${state.expeditions.map(e => `<option value="${e.ekspedisi_id}">${e.nama_ekspedisi}</option>`).join('')}
+                  </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Armada Mobil *</label>
+                    <select id="sj-mobil-id" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                      ${state.vehicles.filter(v => v.status !== 'Maintenance').map(v => `<option value="${v.mobil_id}">${v.no_mobil} (${v.nama_mobil})</option>`).join('')}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Sopir Utama *</label>
+                    <select id="sj-sopir-id" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                      ${state.drivers.map(d => `<option value="${d.sopir_id}">${d.nama_sopir} (${d.status})</option>`).join('')}
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tgl Muat Aktual *</label>
+                    <input type="date" id="sj-tgl-muat" value="2026-11-20" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Muat Aktual (Kg) *</label>
+                    <input type="number" id="sj-berat-muat" min="100" value="12000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">Nominal Uang Jalan / UJ (IDR) *</label>
+                    <input type="number" id="sj-uang-jalan" min="100000" step="50000" value="3800000" required class="w-full rounded-xl border border-amber-300 bg-white px-3.5 py-2 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                    <p class="text-[11px] font-medium text-amber-800 mt-1">
+                      * Sesuai BRD: Biaya BBM sudah digabung menjadi satu ke dalam Uang Jalan (tidak dipisah BBM isi/sisa).
+                    </p>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Biaya Jasa Ekspedisi / PI (IDR) *</label>
+                    <input type="number" id="sj-biaya-ekspedisi" min="500000" step="100000" value="7200000" required class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-sm shadow-sm transition-all">
+                  Terbitkan Surat Jalan (SJ) &amp; Uang Jalan (UJ)
+                </button>
+              </form>
+            `}
+          </div>
+
+          <!-- Daftar Surat Jalan Aktif & Fitur Update Sopir -->
+          <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Daftar Surat Jalan (SJ) &amp; Uang Jalan (UJ)</h3>
+                <p class="text-xs text-slate-500">Mendukung pergantian sopir saat pengiriman berjalan dengan Driver Change Log</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">${state.suratJalans.length} SJ</span>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+              ${state.suratJalans.map(sj => {
+                const isDelivered = sj.status === 'Delivered';
+                return `
+                  <div class="p-5 hover:bg-slate-50/70">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-sky-300 font-bold text-xs">${sj.sj_id}</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 font-bold text-xs">${sj.uj_id}: ${formatIDR(sj.uang_jalan)}</span>
+                        <span class="text-xs text-slate-400 font-semibold">Ref: ${sj.sr_id}</span>
+                      </div>
+                      <span class="px-2.5 py-1 rounded-full text-xs font-bold border ${isDelivered ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-sky-100 text-sky-800 border-sky-200'}">
+                        ${sj.status}
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                      <div>
+                        <span class="text-slate-400 block">Ekspedisi &amp; Armada:</span>
+                        <span class="font-bold text-slate-800 block">${getExpeditionName(sj.ekspedisi_id)}</span>
+                        <span class="text-slate-600">${getVehicleLabel(sj.mobil_id)}</span>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Sopir Bertugas Saat Ini:</span>
+                        <span class="font-bold text-slate-900 block">${getDriverName(sj.sopir_id)}</span>
+                        <span class="text-slate-500">Muat: ${sj.tanggal_muat_akt} (${formatNumber(sj.berat_muat_akt)} Kg)</span>
+                      </div>
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+                      <button onclick="openHistoryModal('${sj.sj_id}')" class="text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                        Driver Change Log (${sj.riwayat_sopir.length})
+                      </button>
+
+                      <div class="flex items-center gap-2">
+                        ${!isDelivered ? `
+                          <button onclick="openDriverModal('${sj.sj_id}')" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold">
+                            Ganti Sopir
+                          </button>
+                          <button onclick="navigateTo('tb')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+                            Proses Terima Barang (TB) →
+                          </button>
+                        ` : `
+                          <span class="text-xs font-semibold text-emerald-700">✓ Barang Telah Diterima (TB Terbit)</span>
+                        `}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 7. MODULE 4: TERIMA BARANG (TB) & KALKULASI SELISIH BARANG
+    // =========================================================================
+    function previewSelisihBarang() {
+      const sjSelect = document.getElementById('tb-sj-id');
+      const bongkarInput = document.getElementById('tb-berat-bongkar');
+      const previewBox = document.getElementById('tb-selisih-preview');
+      if (!sjSelect || !bongkarInput || !previewBox) return;
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjSelect.value);
+      const beratBongkar = parseFloat(bongkarInput.value) || 0;
+      if (!sj) return;
+
+      const selisih = sj.berat_muat_akt - beratBongkar;
+      const pct = sj.berat_muat_akt > 0 ? ((selisih / sj.berat_muat_akt) * 100).toFixed(2) : 0;
+
+      previewBox.innerHTML = `
+        <div class="flex items-center justify-between text-xs mb-1">
+          <span class="text-slate-600">Berat Muat (SJ): <b>${formatNumber(sj.berat_muat_akt)} Kg</b></span>
+          <span class="text-slate-600">Berat Bongkar (TB): <b>${formatNumber(beratBongkar)} Kg</b></span>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+          <span class="text-xs font-bold text-slate-800">Kalkulasi Selisih Barang:</span>
+          <span class="text-sm font-extrabold ${selisih > 0 ? 'text-amber-700' : selisih < 0 ? 'text-sky-700' : 'text-emerald-700'}">
+            ${formatNumber(selisih)} Kg (${pct}%)
+          </span>
+        </div>
+      `;
+    }
+
+    function submitTerimaBarang(e) {
+      e.preventDefault();
+      const sjId = document.getElementById('tb-sj-id').value;
+      const tglBongkar = document.getElementById('tb-tgl-bongkar').value;
+      const beratBongkar = parseFloat(document.getElementById('tb-berat-bongkar').value);
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      // Validasi FR-04.2: Tanggal bongkar tidak boleh lebih awal dari tanggal muat
+      if (tglBongkar < sj.tanggal_muat_akt) {
+        showToast(
+          'Validasi Tanggal Gagal',
+          `Tanggal Bongkar (${tglBongkar}) tidak boleh lebih awal dari Tanggal Muat aktual (${sj.tanggal_muat_akt}).`,
+          'error'
+        );
+        return;
+      }
+
+      const selisihBarang = sj.berat_muat_akt - beratBongkar;
+      const nextNum = String(state.terimaBarangs.length + 1).padStart(3, '0');
+      const newTbId = `TB-2026-${nextNum}`;
+
+      // 1. Simpan Terima Barang (TB)
+      state.terimaBarangs.unshift({
+        tb_id: newTbId,
+        sj_id: sjId,
+        tanggal_bongkar: tglBongkar,
+        berat_bongkar: beratBongkar,
+        selisih_barang: selisihBarang
+      });
+
+      // 2. Update status SJ, SR, Armada & Sopir
+      sj.status = 'Delivered';
+      const sr = state.salesRequests.find(item => item.sr_id === sj.sr_id);
+      if (sr) sr.status = 'Completed';
+
+      const veh = state.vehicles.find(v => v.mobil_id === sj.mobil_id);
+      if (veh) veh.status = 'Tersedia';
+      const drv = state.drivers.find(d => d.sopir_id === sj.sopir_id);
+      if (drv) drv.status = 'Tersedia';
+
+      // 3. Terbitkan Sales Invoice (SI) otomatis berdasarkan TB (Struktur Data #4)
+      const newSiId = `SI-2026-${String(state.salesInvoices.length + 1).padStart(3, '0')}`;
+      state.salesInvoices.unshift({
+        si_id: newSiId,
+        tb_id: newTbId,
+        sr_id: sj.sr_id,
+        client_id: sr ? sr.client_id : 'CL-001',
+        tanggal_invoice: tglBongkar,
+        total_tagihan: sr ? sr.nominal_est : 0,
+        potong_deposit: sr ? sr.nominal_est : 0,
+        piutang_client: 0,
+        status: 'Paid (via Deposit)'
+      });
+
+      // 4. Aktifkan Purchase Invoice (PI) agar siap dibayar ke Ekspedisi (Struktur Data #6)
+      const pi = state.purchaseInvoices.find(item => item.sj_id === sjId);
+      if (pi) {
+        pi.tb_verified = true;
+        pi.status = 'Ready to Pay (Unpaid)';
+      }
+
+      showToast(
+        `${newTbId} & ${newSiId} Terbit!`,
+        `Selisih Barang tercatat: ${formatNumber(selisihBarang)} Kg. Purchase Invoice (PI) ekspedisi kini siap dibayarkan.`,
+        'success'
+      );
+      renderApp();
+    }
+
+    function renderTerimaBarangModule() {
+      document.getElementById('page-title').textContent = 'Terima Barang (TB) & Kalkulasi Selisih';
+      document.getElementById('page-subtitle').textContent = 'Tahap 3 & 4: Pencatatan bongkar tujuan, hitung otomatis Selisih Barang, & pemicu SI/PI';
+
+      const activeSJs = state.suratJalans.filter(sj => sj.status !== 'Delivered');
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Form Terima Barang -->
+          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs self-start">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Konfirmasi Tujuan</span>
+                <h2 class="text-lg font-extrabold text-slate-900">Terbitkan Terima Barang (TB)</h2>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-emerald-300 text-xs font-bold">TB → SI</span>
+            </div>
+
+            ${activeSJs.length === 0 ? `
+              <div class="p-5 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
+                <p class="text-sm font-bold text-slate-800">Tidak Ada Pengiriman In Transit</p>
+                <p class="text-xs text-slate-500">Semua Surat Jalan telah memiliki bukti Terima Barang (TB).</p>
+              </div>
+            ` : `
+              <form onsubmit="submitTerimaBarang(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pilih Surat Jalan (SJ) *</label>
+                  <select id="tb-sj-id" onchange="previewSelisihBarang()" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    ${activeSJs.map(sj => `<option value="${sj.sj_id}">${sj.sj_id} — Muat ${formatNumber(sj.berat_muat_akt)} Kg (${sj.tanggal_muat_akt})</option>`).join('')}
+                  </select>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Bongkar *</label>
+                    <input type="date" id="tb-tgl-bongkar" value="2026-11-20" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Bongkar Aktual (Kg) *</label>
+                    <input type="number" id="tb-berat-bongkar" oninput="previewSelisihBarang()" min="0" step="10" value="19420" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                </div>
+
+                <!-- Live Automatic Calculation Box -->
+                <div id="tb-selisih-preview" class="p-4 rounded-xl bg-slate-50 border border-slate-200"></div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm transition-all">
+                  Simpan TB, Hitung Selisih &amp; Terbitkan Sales Invoice (SI)
+                </button>
+              </form>
+            `}
+          </div>
+
+          <!-- Daftar Dokumen Terima Barang -->
+          <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Daftar Dokumen Terima Barang (TB)</h3>
+                <p class="text-xs text-slate-500">Catatan operasional selisih berat muat vs berat bongkar</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">${state.terimaBarangs.length} Dokumen</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3.5 px-5">No. TB &amp; Ref SJ</th>
+                    <th class="py-3.5 px-5">Tgl Bongkar</th>
+                    <th class="py-3.5 px-5 text-right">Berat Muat</th>
+                    <th class="py-3.5 px-5 text-right">Berat Bongkar</th>
+                    <th class="py-3.5 px-5 text-right">Selisih Barang</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.terimaBarangs.map(tb => {
+                    const sj = state.suratJalans.find(s => s.sj_id === tb.sj_id);
+                    const beratMuat = sj ? sj.berat_muat_akt : 0;
+                    const pct = beratMuat > 0 ? ((tb.selisih_barang / beratMuat) * 100).toFixed(2) : '0.00';
+                    return `
+                      <tr class="hover:bg-slate-50/80">
+                        <td class="py-3.5 px-5">
+                          <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold text-xs">${tb.tb_id}</span>
+                          <span class="text-xs text-slate-500 block mt-1">Ref: <b>${tb.sj_id}</b></span>
+                        </td>
+                        <td class="py-3.5 px-5 text-slate-700 font-medium">${tb.tanggal_bongkar}</td>
+                        <td class="py-3.5 px-5 text-right font-semibold text-slate-700">${formatNumber(beratMuat)} Kg</td>
+                        <td class="py-3.5 px-5 text-right font-semibold text-slate-900">${formatNumber(tb.berat_bongkar)} Kg</td>
+                        <td class="py-3.5 px-5 text-right">
+                          <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold ${tb.selisih_barang > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                            ${formatNumber(tb.selisih_barang)} Kg (${pct}%)
+                          </span>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 8. MODULE 5: KEUANGAN — SI, PI & MONITORING DEPOSIT CLIENT
+    // =========================================================================
+    function setFinanceSubTab(subTab) {
+      state.financeSubTab = subTab;
+      renderApp();
+    }
+
+    function submitTopUpDeposit(e) {
+      e.preventDefault();
+      const clientId = document.getElementById('dep-client-id').value;
+      const nominal = parseFloat(document.getElementById('dep-nominal').value);
+      const ref = document.getElementById('dep-ref').value.trim();
+
+      const client = state.clients.find(c => c.client_id === clientId);
+      if (!client || nominal <= 0) return;
+
+      client.saldo_deposit += nominal;
+
+      state.depositLogs.unshift({
+        id: `DEP-${String(state.depositLogs.length + 1).padStart(3, '0')}`,
+        tanggal: '2026-11-19 16:12',
+        client_id: clientId,
+        tipe: 'Top-Up',
+        referensi: ref,
+        nominal: nominal,
+        saldo_akhir: client.saldo_deposit
+      });
+
+      showToast(
+        'Top-Up Deposit Berhasil',
+        `Saldo deposit ${client.nama_client} bertambah ${formatIDR(nominal)} menjadi ${formatIDR(client.saldo_deposit)}.`,
+        'success'
+      );
+      renderApp();
+    }
+
+    function payPurchaseInvoice(piId) {
+      const pi = state.purchaseInvoices.find(item => item.pi_id === piId);
+      if (!pi) return;
+      if (!pi.tb_verified) {
+        showToast('Pembayaran Ditahan', 'Purchase Invoice (PI) hanya dapat dibayarkan setelah dokumen Terima Barang (TB) diterbitkan.', 'error');
+        return;
+      }
+      pi.status = 'Paid';
+      showToast(`Pelunasan ${pi.pi_id} Berhasil`, `Hutang kepada ${getExpeditionName(pi.ekspedisi_id)} sebesar ${formatIDR(pi.hutang_ekspedisi)} telah dilunasi.`, 'success');
+      renderApp();
+    }
+
+    function paySalesInvoice(siId) {
+      const si = state.salesInvoices.find(item => item.si_id === siId);
+      if (!si) return;
+      si.piutang_client = 0;
+      si.status = 'Paid';
+      showToast(`Pelunasan ${si.si_id} Berhasil`, `Piutang dari ${getClientName(si.client_id)} telah lunas.`, 'success');
+      renderApp();
+    }
+
+    function renderFinanceModule() {
+      document.getElementById('page-title').textContent = 'Keuangan: Invoice (SI/PI) & Deposit Client';
+      document.getElementById('page-subtitle').textContent = 'Tahap 5: Penagihan Piutang Client (SI), Hutang Ekspedisi (PI), & Monitoring Saldo Deposit';
+
+      const isClientRole = state.currentRole === 'Client';
+      if (isClientRole && state.financeSubTab === 'pi') {
+        state.financeSubTab = 'deposit';
+      }
+
+      const activeSub = state.financeSubTab;
+
+      return `
+        <!-- Sub-tabs Navigation -->
+        <div class="flex flex-wrap items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs w-fit">
+          <button onclick="setFinanceSubTab('si')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeSub === 'si' ? 'bg-slate-900 text-amber-400' : 'text-slate-600 hover:bg-slate-100'}">
+            Sales Invoice (SI) &amp; Piutang
+          </button>
+          ${!isClientRole ? `
+            <button onclick="setFinanceSubTab('pi')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeSub === 'pi' ? 'bg-slate-900 text-amber-400' : 'text-slate-600 hover:bg-slate-100'}">
+              Purchase Invoice (PI) &amp; Hutang Ekspedisi
+            </button>
+          ` : ''}
+          <button onclick="setFinanceSubTab('deposit')" class="px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeSub === 'deposit' ? 'bg-slate-900 text-amber-400' : 'text-slate-600 hover:bg-slate-100'}">
+            Monitoring Deposit Client
+          </button>
+        </div>
+
+        ${activeSub === 'si' ? `
+          <!-- SALES INVOICE (SI) TABLE -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="font-bold text-slate-900 text-base">Daftar Sales Invoice (SI) — Tagihan &amp; Piutang Client</h3>
+              <p class="text-xs text-slate-500">Diterbitkan berdasarkan dokumen Terima Barang (TB)</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3.5 px-6">No. SI &amp; Ref TB</th>
+                    <th class="py-3.5 px-6">Client</th>
+                    <th class="py-3.5 px-6 text-right">Total Tagihan</th>
+                    <th class="py-3.5 px-6 text-right">Potong Deposit</th>
+                    <th class="py-3.5 px-6 text-right">Sisa Piutang</th>
+                    <th class="py-3.5 px-6">Status</th>
+                    ${!isClientRole ? '<th class="py-3.5 px-6 text-right">Aksi</th>' : ''}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.salesInvoices
+                    .filter(si => !isClientRole || si.client_id === state.activeClientId)
+                    .map(si => `
+                      <tr class="hover:bg-slate-50/80">
+                        <td class="py-3.5 px-6">
+                          <span class="font-bold text-slate-900">${si.si_id}</span>
+                          <span class="text-xs text-slate-500 block">Ref: ${si.tb_id} (${si.tanggal_invoice})</span>
+                        </td>
+                        <td class="py-3.5 px-6 font-semibold text-slate-800">${getClientName(si.client_id)}</td>
+                        <td class="py-3.5 px-6 text-right font-semibold text-slate-700">${formatIDR(si.total_tagihan)}</td>
+                        <td class="py-3.5 px-6 text-right font-semibold text-emerald-700">-${formatIDR(si.potong_deposit)}</td>
+                        <td class="py-3.5 px-6 text-right font-extrabold ${si.piutang_client > 0 ? 'text-amber-600' : 'text-slate-900'}">${formatIDR(si.piutang_client)}</td>
+                        <td class="py-3.5 px-6">
+                          <span class="px-2.5 py-1 rounded-full text-xs font-bold ${si.piutang_client > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                            ${si.status}
+                          </span>
+                        </td>
+                        ${!isClientRole ? `
+                          <td class="py-3.5 px-6 text-right">
+                            ${si.piutang_client > 0
+                              ? `<button onclick="paySalesInvoice('${si.si_id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">Lunasi Piutang</button>`
+                              : '<span class="text-xs text-slate-400">Lunas</span>'}
+                          </td>
+                        ` : ''}
+                      </tr>
+                    `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ` : ''}
+
+        ${activeSub === 'pi' && !isClientRole ? `
+          <!-- PURCHASE INVOICE (PI) TABLE -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+              <h3 class="font-bold text-slate-900 text-base">Daftar Purchase Invoice (PI) — Hutang kepada Ekspedisi</h3>
+              <p class="text-xs text-slate-500">Dasar dari Surat Jalan (SJ), wajib dibayarkan setelah dokumen Terima Barang (TB) terbit</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3.5 px-6">No. PI &amp; Ref SJ</th>
+                    <th class="py-3.5 px-6">Vendor Ekspedisi</th>
+                    <th class="py-3.5 px-6">Syarat TB</th>
+                    <th class="py-3.5 px-6 text-right">Nominal Hutang</th>
+                    <th class="py-3.5 px-6">Status</th>
+                    <th class="py-3.5 px-6 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.purchaseInvoices.map(pi => `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3.5 px-6">
+                        <span class="font-bold text-slate-900">${pi.pi_id}</span>
+                        <span class="text-xs text-slate-500 block">Ref: ${pi.sj_id} (${pi.tanggal_pi})</span>
+                      </td>
+                      <td class="py-3.5 px-6 font-semibold text-slate-800">${getExpeditionName(pi.ekspedisi_id)}</td>
+                      <td class="py-3.5 px-6">
+                        ${pi.tb_verified
+                          ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✓ TB Terverifikasi</span>'
+                          : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600">Menunggu TB</span>'}
+                      </td>
+                      <td class="py-3.5 px-6 text-right font-extrabold text-rose-600">${formatIDR(pi.hutang_ekspedisi)}</td>
+                      <td class="py-3.5 px-6">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${pi.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                          ${pi.status}
+                        </span>
+                      </td>
+                      <td class="py-3.5 px-6 text-right">
+                        ${pi.status !== 'Paid'
+                          ? `<button onclick="payPurchaseInvoice('${pi.pi_id}')" class="px-3.5 py-1.5 rounded-lg ${pi.tb_verified ? 'bg-slate-900 hover:bg-slate-800 text-amber-400' : 'bg-slate-200 text-slate-400 cursor-not-allowed'} text-xs font-bold">Bayar Hutang</button>`
+                          : '<span class="text-xs text-emerald-700 font-bold">✓ Dibayar</span>'}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ` : ''}
+
+        ${activeSub === 'deposit' ? `
+          <!-- MONITORING DEPOSIT CLIENT -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Form Top-Up Deposit -->
+            <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs self-start">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Top-Up Saldo</span>
+              <h3 class="text-lg font-extrabold text-slate-900 mb-4">Tambah Deposit Client</h3>
+              <form onsubmit="submitTopUpDeposit(event)" class="space-y-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pilih Client *</label>
+                  <select id="dep-client-id" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    ${(isClientRole ? state.clients.filter(c => c.client_id === state.activeClientId) : state.clients)
+                      .map(c => `<option value="${c.client_id}">${c.client_id} — ${c.nama_client}</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nominal Top-Up (IDR) *</label>
+                  <input type="number" id="dep-nominal" min="1000000" step="500000" value="15000000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Bukti / Referensi Transfer *</label>
+                  <input type="text" id="dep-ref" value="Transfer BCA #9941" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm">
+                  + Konfirmasi Top-Up Deposit
+                </button>
+              </form>
+            </div>
+
+            <!-- Saldo & Mutasi Deposit -->
+            <div class="lg:col-span-8 space-y-6">
+              <!-- Cards Sisa Saldo -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                ${(isClientRole ? state.clients.filter(c => c.client_id === state.activeClientId) : state.clients).map(c => `
+                  <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+                    <span class="text-xs font-bold text-amber-600">${c.client_id}</span>
+                    <p class="text-sm font-bold text-slate-900 truncate mt-0.5">${c.nama_client}</p>
+                    <p class="text-lg font-extrabold text-emerald-700 mt-2">${formatIDR(c.saldo_deposit)}</p>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Riwayat Mutasi Deposit -->
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200">
+                  <h3 class="font-bold text-slate-900 text-base">Riwayat Mutasi Saldo Deposit</h3>
+                  <p class="text-xs text-slate-500">Top-up saldo (+) dan pemotongan otomatis per Sales Request (-)</p>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                        <th class="py-3 px-5">Waktu</th>
+                        <th class="py-3 px-5">Client</th>
+                        <th class="py-3 px-5">Tipe &amp; Referensi</th>
+                        <th class="py-3 px-5 text-right">Mutasi Nominal</th>
+                        <th class="py-3 px-5 text-right">Saldo Akhir</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                      ${state.depositLogs
+                        .filter(log => !isClientRole || log.client_id === state.activeClientId)
+                        .map(log => `
+                          <tr class="hover:bg-slate-50/80">
+                            <td class="py-3 px-5 text-slate-500 font-mono text-xs">${log.tanggal}</td>
+                            <td class="py-3 px-5 font-semibold text-slate-800">${getClientName(log.client_id)}</td>
+                            <td class="py-3 px-5">
+                              <span class="font-bold ${log.nominal > 0 ? 'text-emerald-700' : 'text-amber-700'}">${log.tipe}</span>
+                              <span class="text-xs text-slate-500 block">${log.referensi}</span>
+                            </td>
+                            <td class="py-3 px-5 text-right font-extrabold ${log.nominal > 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                              ${log.nominal > 0 ? '+' : ''}${formatIDR(log.nominal)}
+                            </td>
+                            <td class="py-3 px-5 text-right font-bold text-slate-900">${formatIDR(log.saldo_akhir)}</td>
+                          </tr>
+                        `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    // =========================================================================
+    // 9. MODULE 6: MASTER DATA MOBIL & SOPIR (FR-01)
+    // =========================================================================
+    function submitNewVehicle(e) {
+      e.preventDefault();
+      const namaMobil = document.getElementById('m-nama-mobil').value.trim();
+      const noMobil = document.getElementById('m-no-mobil').value.trim().toUpperCase();
+      const newId = `MB-${String(state.vehicles.length + 1).padStart(3, '0')}`;
+
+      state.vehicles.push({
+        mobil_id: newId,
+        nama_mobil: namaMobil,
+        no_mobil: noMobil,
+        status: 'Tersedia',
+        trips: { Daily: 0, Weekly: 0, Monthly: 0, Yearly: 0 },
+        tonase: { Daily: 0, Weekly: 0, Monthly: 0, Yearly: 0 }
+      });
+
+      showToast('Master Mobil Ditambahkan', `${namaMobil} (${noMobil}) berhasil disimpan ke database armada.`, 'success');
+      renderApp();
+    }
+
+    function toggleVehicleStatus(mobilId) {
+      const v = state.vehicles.find(item => item.mobil_id === mobilId);
+      if (!v) return;
+      const order = ['Tersedia', 'Sedang Bertugas', 'Maintenance'];
+      v.status = order[(order.indexOf(v.status) + 1) % order.length];
+      renderApp();
+    }
+
+    function submitNewDriver(e) {
+      e.preventDefault();
+      const namaSopir = document.getElementById('m-nama-sopir').value.trim();
+      const noTelp = document.getElementById('m-telp-sopir').value.trim();
+      const noSim = document.getElementById('m-sim-sopir').value.trim();
+      const newId = `SP-${String(state.drivers.length + 1).padStart(3, '0')}`;
+
+      state.drivers.push({
+        sopir_id: newId,
+        nama_sopir: namaSopir,
+        no_telepon: noTelp,
+        no_sim: noSim,
+        status: 'Tersedia'
+      });
+
+      showToast('Master Sopir Ditambahkan', `${namaSopir} (${newId}) berhasil ditambahkan.`, 'success');
+      renderApp();
+    }
+
+    function toggleDriverStatus(sopirId) {
+      const d = state.drivers.find(item => item.sopir_id === sopirId);
+      if (!d) return;
+      d.status = d.status === 'Tersedia' ? 'Bertugas' : 'Tersedia';
+      renderApp();
+    }
+
+    function renderMasterDataModule() {
+      document.getElementById('page-title').textContent = 'Master Data Mobil & Master Sopir';
+      document.getElementById('page-subtitle').textContent = 'Pengelolaan data induk armada kendaraan (nama & no. mobil) dan data pengemudi';
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- MASTER MOBIL -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-base">Master Data Mobil</h3>
+              <p class="text-xs text-slate-500">Isi nama mobil (merk/tipe) dan nomor polisi kendaraan</p>
+            </div>
+
+            <form onsubmit="submitNewVehicle(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <div class="sm:col-span-5">
+                <input type="text" id="m-nama-mobil" placeholder="Nama Mobil (mis: Hino Dutro)" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div class="sm:col-span-4">
+                <input type="text" id="m-no-mobil" placeholder="No. Mobil (B 1234 XY)" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm uppercase focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div class="sm:col-span-3">
+                <button type="submit" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs sm:text-sm">
+                  + Mobil
+                </button>
+              </div>
+            </form>
+
+            <div class="overflow-x-auto flex-1">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3 px-5">ID</th>
+                    <th class="py-3 px-5">Nama Mobil</th>
+                    <th class="py-3 px-5">No. Mobil</th>
+                    <th class="py-3 px-5 text-right">Status (Klik Ubah)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.vehicles.map(v => `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3 px-5 font-bold text-slate-600 text-xs">${v.mobil_id}</td>
+                      <td class="py-3 px-5 font-bold text-slate-900">${v.nama_mobil}</td>
+                      <td class="py-3 px-5 font-mono text-xs font-semibold text-slate-700">${v.no_mobil}</td>
+                      <td class="py-3 px-5 text-right">
+                        <button onclick="toggleVehicleStatus('${v.mobil_id}')" class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                          v.status === 'Tersedia' ? 'bg-emerald-100 text-emerald-800' : v.status === 'Sedang Bertugas' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'
+                        }">
+                          ${v.status}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- MASTER SOPIR -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-base">Master Data Sopir</h3>
+              <p class="text-xs text-slate-500">Daftar pengemudi terdaftar untuk penugasan Surat Jalan</p>
+            </div>
+
+            <form onsubmit="submitNewDriver(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <div class="sm:col-span-4">
+                <input type="text" id="m-nama-sopir" placeholder="Nama Sopir" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div class="sm:col-span-3">
+                <input type="text" id="m-telp-sopir" placeholder="No. HP" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div class="sm:col-span-3">
+                <input type="text" id="m-sim-sopir" placeholder="No. SIM B1/B2" required class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div class="sm:col-span-2">
+                <button type="submit" class="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs sm:text-sm">
+                  + Sopir
+                </button>
+              </div>
+            </form>
+
+            <div class="overflow-x-auto flex-1">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3 px-5">ID</th>
+                    <th class="py-3 px-5">Nama Sopir</th>
+                    <th class="py-3 px-5">Kontak &amp; SIM</th>
+                    <th class="py-3 px-5 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.drivers.map(d => `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3 px-5 font-bold text-slate-600 text-xs">${d.sopir_id}</td>
+                      <td class="py-3 px-5 font-bold text-slate-900">${d.nama_sopir}</td>
+                      <td class="py-3 px-5 text-xs text-slate-600">
+                        <span class="block font-semibold">${d.no_telepon}</span>
+                        <span class="text-slate-400">${d.no_sim}</span>
+                      </td>
+                      <td class="py-3 px-5 text-right">
+                        <button onclick="toggleDriverStatus('${d.sopir_id}')" class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                          d.status === 'Tersedia' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                        }">
+                          ${d.status}
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 10. MAIN RENDER ORCHESTRATOR
+    // =========================================================================
+    function renderApp() {
+      renderNavigation();
+      const main = document.getElementById('main-content');
+
+      switch (state.activeTab) {
+        case 'dashboard':
+          main.innerHTML = renderExecutiveDashboard();
+          initDashboardCharts();
+          break;
+        case 'sr':
+          main.innerHTML = renderSalesRequestModule();
+          break;
+        case 'sj':
+          main.innerHTML = renderSuratJalanModule();
+          break;
+        case 'tb':
+          main.innerHTML = renderTerimaBarangModule();
+          previewSelisihBarang();
+          break;
+        case 'finance':
+          main.innerHTML = renderFinanceModule();
+          break;
+        case 'master':
+          main.innerHTML = renderMasterDataModule();
+          break;
+        default:
+          main.innerHTML = renderExecutiveDashboard();
+          initDashboardCharts();
+      }
+    }
+
+    // Boot application on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+    });
+  </script>
 </body>
 </html>
