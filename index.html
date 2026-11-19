@@ -1061,6 +1061,978 @@
     }
 
     // =========================================================================
+    // 5. MODULE 2: SALES REQUEST (SR) — CREATE & LIST
+    // =========================================================================
+    function updateSelectedClientDepositInfo() {
+      const select = document.getElementById('sr-client');
+      const infoEl = document.getElementById('sr-deposit-info');
+      if (!select || !infoEl) return;
+      const client = state.clients.find(c => c.client_id === select.value);
+      if (client) {
+        infoEl.innerHTML = `Saldo Deposit Tersedia (${client.nama_client} • ${getBranchName(client.cabang_id)}): <span class="font-extrabold text-emerald-700">${formatIDR(client.saldo_deposit)}</span>`;
+      }
+    }
+
+    function calculateSrTotalCost() {
+      const berat = parseFloat(document.getElementById('sr-berat')?.value) || 0;
+      const harga = parseFloat(document.getElementById('sr-harga')?.value) || 0;
+      const total = berat * harga;
+      const displayEl = document.getElementById('sr-total-display');
+      if (displayEl) {
+        displayEl.textContent = formatIDR(total);
+      }
+      return total;
+    }
+
+    function submitSalesRequest(e) {
+      e.preventDefault();
+      const clientId = document.getElementById('sr-client').value;
+      const cabangId = document.getElementById('sr-cabang').value;
+      const tanggalMuat = document.getElementById('sr-tanggal').value;
+      const beratEst = parseFloat(document.getElementById('sr-berat').value);
+      const hargaPerKg = parseFloat(document.getElementById('sr-harga').value);
+      const asal = document.getElementById('sr-asal').value.trim();
+      const tujuan = document.getElementById('sr-tujuan').value.trim();
+      const nominal = beratEst * hargaPerKg;
+
+      const client = state.clients.find(c => c.client_id === clientId);
+      if (!client) return;
+
+      if (nominal <= 0) {
+        showToast('Nominal Tidak Valid', 'Pastikan Berat Muat dan Harga per Kg bernilai lebih dari 0.', 'error');
+        return;
+      }
+
+      if (client.saldo_deposit < nominal) {
+        showToast(
+          'Saldo Deposit Tidak Mencukupi',
+          `Saldo ${client.nama_client} (${formatIDR(client.saldo_deposit)}) kurang dari total biaya SR (${formatIDR(nominal)}). Silakan lakukan Top-Up Deposit.`,
+          'error'
+        );
+        return;
+      }
+
+      // Potong saldo deposit otomatis
+      client.saldo_deposit -= nominal;
+      const newSrId = `SR-2026-${String(state.salesRequests.length + 1).padStart(3, '0')}`;
+
+      state.salesRequests.unshift({
+        sr_id: newSrId,
+        cabang_id: cabangId,
+        client_id: clientId,
+        tanggal_muat: tanggalMuat,
+        berat_muat_est: beratEst,
+        harga_per_kg: hargaPerKg,
+        lokasi_pengambilan: asal,
+        lokasi_tujuan: tujuan,
+        nominal_est: nominal,
+        status: 'Requested'
+      });
+
+      state.depositLogs.unshift({
+        id: `DEP-${String(state.depositLogs.length + 1).padStart(3, '0')}`,
+        tanggal: '2026-11-19 21:55',
+        client_id: clientId,
+        tipe: 'Pemotongan SR',
+        referensi: newSrId,
+        nominal: -nominal,
+        saldo_akhir: client.saldo_deposit
+      });
+
+      showToast(
+        `Sales Request ${newSrId} Terbit`,
+        `Total biaya ${formatIDR(nominal)} (${formatNumber(beratEst)} Kg × ${formatIDR(hargaPerKg)}) otomatis dipotong dari deposit ${client.nama_client}.`,
+        'success'
+      );
+      navigateTo('sr', 'list');
+    }
+
+    function renderSalesRequestModule() {
+      const sub = state.activeSubMenu || 'create';
+
+      if (sub === 'create') {
+        document.getElementById('page-title').textContent = 'Sales Request — Create (SR)';
+        const availableClients = state.currentRole === 'Client'
+          ? state.clients.filter(c => c.client_id === state.activeClientId)
+          : state.clients;
+        const firstClient = availableClients[0];
+
+        return `
+          <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="pb-5 mb-6 border-b border-slate-100">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600">Dokumen 1 • Sales Request (SR)</span>
+              <h2 class="text-xl font-extrabold text-slate-900">Buat Permintaan Pengiriman Baru</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Total biaya = <b>Berat Muatan (Kg) × Harga per Kg</b> dan akan otomatis memotong saldo deposit Client.</p>
+            </div>
+
+            <form onsubmit="submitSalesRequest(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Client Pemesan *</label>
+                  <select id="sr-client" onchange="updateSelectedClientDepositInfo()" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${availableClients.map(c => `<option value="${c.client_id}">${c.nama_client} (${c.client_id})</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Cabang Operasional *</label>
+                  <select id="sr-cabang" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${state.branches.map(b => `<option value="${b.cabang_id}" ${firstClient && firstClient.cabang_id === b.cabang_id ? 'selected' : ''}>${b.kode_cabang} — ${b.nama_cabang}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div id="sr-deposit-info" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+                Saldo Deposit Tersedia (${firstClient.nama_client} • ${getBranchName(firstClient.cabang_id)}): <span class="font-extrabold text-emerald-700">${formatIDR(firstClient.saldo_deposit)}</span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Muat *</label>
+                  <input type="date" id="sr-tanggal" value="2026-11-21" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Muat (Kg) *</label>
+                  <input type="number" id="sr-berat" oninput="calculateSrTotalCost()" min="100" step="50" value="15000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Harga / Kg (IDR) *</label>
+                  <input type="number" id="sr-harga" oninput="calculateSrTotalCost()" min="50" step="25" value="700" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-900 text-white flex items-center justify-between">
+                <div>
+                  <p class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Kalkulasi Total Biaya Penagihan Client</p>
+                  <p class="text-xs text-slate-400">Berat Muatan × Harga per Kg (Otomatis Potong Deposit)</p>
+                </div>
+                <p id="sr-total-display" class="text-xl font-extrabold text-amber-400">${formatIDR(15000 * 700)}</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Pengambilan (Origin) *</label>
+                  <input type="text" id="sr-asal" placeholder="Contoh: Gudang Cikarang Blok A" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Lokasi Tujuan (Destination) *</label>
+                  <input type="text" id="sr-tujuan" placeholder="Contoh: Depo Logistik Surabaya" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3">
+                <button type="button" onclick="navigateTo('sr', 'list')" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Lihat Daftar SR</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-sm shadow-sm">
+                  Submit Sales Request (SR)
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      document.getElementById('page-title').textContent = 'Sales Request — List (SR)';
+      const list = state.currentRole === 'Client'
+        ? state.salesRequests.filter(sr => sr.client_id === state.activeClientId)
+        : state.salesRequests;
+
+      return `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Daftar Sales Request (SR)</h3>
+              <p class="text-xs text-slate-500">Seluruh permintaan pengiriman dari Client beserta hasil perkalian Berat × Harga</p>
+            </div>
+            <button onclick="navigateTo('sr', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+              + Buat SR Baru
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-5">Kode SR &amp; Cabang</th>
+                  <th class="py-3.5 px-5">Client &amp; Tgl Muat</th>
+                  <th class="py-3.5 px-5">Rute Pengiriman</th>
+                  <th class="py-3.5 px-5 text-right">Berat × Harga/Kg</th>
+                  <th class="py-3.5 px-5 text-right">Total Biaya</th>
+                  <th class="py-3.5 px-5 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                ${list.map(sr => `
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="py-3.5 px-5">
+                      <p class="font-extrabold text-amber-700 text-xs">${sr.sr_id}</p>
+                      <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">${sr.cabang_id || 'CAB-01'}</span>
+                    </td>
+                    <td class="py-3.5 px-5">
+                      <p class="font-bold text-slate-900">${getClientName(sr.client_id)}</p>
+                      <p class="text-xs text-slate-500">Muat: ${sr.tanggal_muat}</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-xs text-slate-700">
+                      <p><span class="font-bold text-slate-500">Dari:</span> ${sr.lokasi_pengambilan}</p>
+                      <p><span class="font-bold text-slate-500">Ke:</span> ${sr.lokasi_tujuan}</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-right text-xs">
+                      <p class="font-bold text-slate-800">${formatNumber(sr.berat_muat_est)} Kg</p>
+                      <p class="text-slate-500">@ ${formatIDR(sr.harga_per_kg)}/Kg</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-right font-extrabold text-slate-900">${formatIDR(sr.nominal_est)}</td>
+                    <td class="py-3.5 px-5 text-right">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                        sr.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : sr.status === 'In Transit' ? 'bg-sky-100 text-sky-800' : 'bg-amber-100 text-amber-800'
+                      }">${sr.status}</span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. MODULE 3: SURAT JALAN (SJ) & UANG JALAN (UJ) + GANTI SOPIR
+    // =========================================================================
+    function submitSuratJalan(e) {
+      e.preventDefault();
+      const srId = document.getElementById('sj-sr-id').value;
+      const ekspId = document.getElementById('sj-ekspedisi').value;
+      const mobilId = document.getElementById('sj-mobil').value;
+      const sopirId = document.getElementById('sj-sopir').value;
+      const tglMuat = document.getElementById('sj-tgl-muat').value;
+      const beratAkt = parseFloat(document.getElementById('sj-berat-akt').value);
+      const uangJalan = parseFloat(document.getElementById('sj-uang-jalan').value);
+      const biayaVendor = parseFloat(document.getElementById('sj-biaya-vendor').value);
+
+      const sr = state.salesRequests.find(item => item.sr_id === srId);
+      if (!sr) return;
+
+      const idx = state.suratJalans.length + 1;
+      const newSjId = `SJ-2026-${String(idx).padStart(3, '0')}`;
+      const newUjId = `UJ-2026-${String(idx).padStart(3, '0')}`;
+      const newPiId = `PI-2026-${String(state.purchaseInvoices.length + 1).padStart(3, '0')}`;
+
+      state.suratJalans.unshift({
+        sj_id: newSjId,
+        sr_id: srId,
+        ekspedisi_id: ekspId,
+        mobil_id: mobilId,
+        sopir_id: sopirId,
+        tanggal_muat_akt: tglMuat,
+        berat_muat_akt: beratAkt,
+        uj_id: newUjId,
+        uang_jalan: uangJalan,
+        status: 'In Transit',
+        riwayat_sopir: []
+      });
+
+      // Otomatis catat Purchase Invoice (PI) sebagai hutang ekspedisi (dibayar setelah TB)
+      state.purchaseInvoices.unshift({
+        pi_id: newPiId,
+        sj_id: newSjId,
+        ekspedisi_id: ekspId,
+        tanggal_pi: tglMuat,
+        hutang_ekspedisi: biayaVendor,
+        tb_verified: false,
+        status: 'Pending TB'
+      });
+
+      sr.status = 'In Transit';
+      const v = state.vehicles.find(item => item.mobil_id === mobilId);
+      if (v) v.status = 'Sedang Bertugas';
+      const d = state.drivers.find(item => item.sopir_id === sopirId);
+      if (d) d.status = 'Bertugas';
+
+      showToast(
+        `Surat Jalan ${newSjId} & ${newUjId} Terbit`,
+        `Armada ditugaskan & Purchase Invoice ${newPiId} (${formatIDR(biayaVendor)}) tercatat sebagai Hutang Ekspedisi.`,
+        'success'
+      );
+      navigateTo('sj', 'list');
+    }
+
+    function openDriverModal(sjId) {
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+      document.getElementById('dc-sj-id').value = sj.sj_id;
+      document.getElementById('dc-sj-label').textContent = sj.sj_id;
+      document.getElementById('dc-old-driver').textContent = getDriverName(sj.sopir_id);
+
+      const select = document.getElementById('dc-new-driver');
+      select.innerHTML = state.drivers
+        .filter(d => d.sopir_id !== sj.sopir_id)
+        .map(d => `<option value="${d.sopir_id}">${d.nama_sopir} (${d.sopir_id}) — ${d.status}</option>`)
+        .join('');
+
+      document.getElementById('dc-reason').value = '';
+      const modal = document.getElementById('modal-driver-change');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDriverModal() {
+      const modal = document.getElementById('modal-driver-change');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function submitDriverChange(e) {
+      e.preventDefault();
+      const sjId = document.getElementById('dc-sj-id').value;
+      const newDriverId = document.getElementById('dc-new-driver').value;
+      const reason = document.getElementById('dc-reason').value.trim();
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      const oldDriverLabel = getDriverName(sj.sopir_id);
+      const newDriverLabel = getDriverName(newDriverId);
+
+      // Update status sopir lama & baru
+      const oldD = state.drivers.find(d => d.sopir_id === sj.sopir_id);
+      if (oldD) oldD.status = 'Tersedia';
+      const newD = state.drivers.find(d => d.sopir_id === newDriverId);
+      if (newD) newD.status = 'Bertugas';
+
+      sj.riwayat_sopir.unshift({
+        old_sopir: oldDriverLabel,
+        new_sopir: newDriverLabel,
+        timestamp: '2026-11-19 21:58 WIB',
+        reason: reason,
+        updated_by: state.currentRole
+      });
+      sj.sopir_id = newDriverId;
+
+      closeDriverModal();
+      showToast('Sopir Berhasil Diperbarui', `${sjId}: ${oldDriverLabel} digantikan oleh ${newDriverLabel}.`, 'warning');
+      renderApp();
+    }
+
+    function openHistoryModal(sjId) {
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+      document.getElementById('dh-sj-subtitle').textContent = `Dokumen: ${sj.sj_id} • Sopir Aktif: ${getDriverName(sj.sopir_id)}`;
+      const container = document.getElementById('dh-content');
+
+      if (!sj.riwayat_sopir || sj.riwayat_sopir.length === 0) {
+        container.innerHTML = `<p class="text-sm text-slate-500 text-center py-6">Belum ada riwayat pergantian sopir pada Surat Jalan ini.</p>`;
+      } else {
+        container.innerHTML = sj.riwayat_sopir.map((log, i) => `
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-amber-700">Perubahan #${sj.riwayat_sopir.length - i}</span>
+              <span class="text-slate-400 font-mono">${log.timestamp}</span>
+            </div>
+            <p><span class="text-slate-500">Sopir Lama:</span> <span class="font-bold text-rose-600">${log.old_sopir}</span></p>
+            <p><span class="text-slate-500">Sopir Baru:</span> <span class="font-bold text-emerald-700">${log.new_sopir}</span></p>
+            <p><span class="text-slate-500">Alasan:</span> <span class="text-slate-800">${log.reason}</span></p>
+            <p class="text-[11px] text-slate-400">Diubah oleh: <b>${log.updated_by}</b></p>
+          </div>
+        `).join('');
+      }
+
+      const modal = document.getElementById('modal-driver-history');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHistoryModal() {
+      const modal = document.getElementById('modal-driver-history');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function renderSuratJalanModule() {
+      const sub = state.activeSubMenu || 'list';
+
+      if (sub === 'create') {
+        document.getElementById('page-title').textContent = 'Surat Jalan & Uang Jalan — Create (SJ + UJ)';
+        const pendingSrs = state.salesRequests.filter(sr => sr.status === 'Requested');
+
+        if (pendingSrs.length === 0) {
+          return `
+            <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
+              <h3 class="font-extrabold text-slate-900 text-lg">Tidak Ada Sales Request Menunggu Penugasan</h3>
+              <p class="text-xs text-slate-500">Seluruh Sales Request (SR) sudah dibuatkan Surat Jalan atau belum ada request baru.</p>
+              <button onclick="navigateTo('sr', 'create')" class="px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs">+ Buat Sales Request Baru</button>
+            </div>
+          `;
+        }
+
+        const firstSr = pendingSrs[0];
+        return `
+          <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="pb-5 mb-6 border-b border-slate-100">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-sky-600">Dokumen 2 &amp; 3 • Surat Jalan (SJ) + Uang Jalan (UJ)</span>
+              <h2 class="text-xl font-extrabold text-slate-900">Terbitkan Surat Jalan &amp; Uang Jalan Sopir</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Uang Jalan sudah mencakup biaya operasional &amp; BBM. Sekaligus mencatat Purchase Invoice (PI) ke Ekspedisi.</p>
+            </div>
+
+            <form onsubmit="submitSuratJalan(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Referensi Sales Request (SR) *</label>
+                  <select id="sj-sr-id" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${pendingSrs.map(sr => `<option value="${sr.sr_id}">${sr.sr_id} — ${getClientName(sr.client_id)} (${formatNumber(sr.berat_muat_est)} Kg)</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mitra Jasa Ekspedisi *</label>
+                  <select id="sj-ekspedisi" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${state.expeditions.map(e => `<option value="${e.ekspedisi_id}">${e.nama_ekspedisi}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pilih Armada (Master Mobil) *</label>
+                  <select id="sj-mobil" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${state.vehicles.map(v => `<option value="${v.mobil_id}">${v.no_mobil} — ${v.nama_mobil} (${v.status})</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Pilih Pengemudi (Master Sopir) *</label>
+                  <select id="sj-sopir" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    ${state.drivers.map(d => `<option value="${d.sopir_id}">${d.nama_sopir} (${d.status})</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Muat Aktual *</label>
+                  <input type="date" id="sj-tgl-muat" value="${firstSr.tanggal_muat}" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Muat Aktual (Kg) *</label>
+                  <input type="number" id="sj-berat-akt" value="${firstSr.berat_muat_est}" min="1" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nominal Uang Jalan / UJ (Termasuk BBM) *</label>
+                  <input type="number" id="sj-uang-jalan" value="4500000" min="0" step="100000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Biaya Jasa Ekspedisi / Purchase Invoice (PI) *</label>
+                  <input type="number" id="sj-biaya-vendor" value="5500000" min="0" step="100000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end gap-3">
+                <button type="button" onclick="navigateTo('sj', 'list')" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Lihat Daftar SJ</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-sm shadow-sm">
+                  Terbitkan SJ &amp; Uang Jalan
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      document.getElementById('page-title').textContent = 'Surat Jalan & Uang Jalan — List (SJ + UJ)';
+      return `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Daftar Surat Jalan (SJ) &amp; Uang Jalan (UJ)</h3>
+              <p class="text-xs text-slate-500">Mendukung pergantian sopir saat pengiriman berlangsung dengan pencatatan Driver Change Log</p>
+            </div>
+            <button onclick="navigateTo('sj', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+              + Buat SJ Baru
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-5">Kode SJ / SR</th>
+                  <th class="py-3.5 px-5">Ekspedisi &amp; Armada</th>
+                  <th class="py-3.5 px-5">Sopir Aktif</th>
+                  <th class="py-3.5 px-5 text-right">Berat Muat</th>
+                  <th class="py-3.5 px-5 text-right">Uang Jalan (UJ)</th>
+                  <th class="py-3.5 px-5 text-right">Aksi Sopir &amp; Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                ${state.suratJalans.map(sj => `
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="py-3.5 px-5">
+                      <p class="font-extrabold text-sky-700 text-xs">${sj.sj_id}</p>
+                      <p class="text-[11px] text-slate-500">Ref: ${sj.sr_id}</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-xs">
+                      <p class="font-bold text-slate-900">${getExpeditionName(sj.ekspedisi_id)}</p>
+                      <p class="text-slate-500">${getVehicleLabel(sj.mobil_id)}</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-xs">
+                      <p class="font-bold text-slate-900">${getDriverName(sj.sopir_id)}</p>
+                      <button onclick="openHistoryModal('${sj.sj_id}')" class="text-[11px] font-semibold text-amber-600 hover:underline">
+                        Log Ganti Sopir (${sj.riwayat_sopir.length})
+                      </button>
+                    </td>
+                    <td class="py-3.5 px-5 text-right font-bold text-slate-800 text-xs">${formatNumber(sj.berat_muat_akt)} Kg</td>
+                    <td class="py-3.5 px-5 text-right text-xs">
+                      <p class="font-extrabold text-slate-900">${formatIDR(sj.uang_jalan)}</p>
+                      <p class="text-[11px] text-slate-400">${sj.uj_id} (Inc. BBM)</p>
+                    </td>
+                    <td class="py-3.5 px-5 text-right space-x-1.5">
+                      ${sj.status === 'In Transit' ? `
+                        <button onclick="openDriverModal('${sj.sj_id}')" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs">
+                          Ganti Sopir
+                        </button>
+                      ` : ''}
+                      <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                        sj.status === 'Delivered' ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-sky-800'
+                      }">${sj.status}</span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 7. MODULE 4: TERIMA BARANG (TB) — CREATE & LIST
+    // =========================================================================
+    function previewSelisihBarang() {
+      const sjSelect = document.getElementById('tb-sj-id');
+      const bongkarInput = document.getElementById('tb-berat-bongkar');
+      const previewEl = document.getElementById('tb-selisih-preview');
+      if (!sjSelect || !bongkarInput || !previewEl) return;
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjSelect.value);
+      if (!sj) return;
+
+      const beratBongkar = parseFloat(bongkarInput.value) || 0;
+      const selisih = sj.berat_muat_akt - beratBongkar;
+      const persen = sj.berat_muat_akt > 0 ? ((selisih / sj.berat_muat_akt) * 100).toFixed(2) : 0;
+
+      previewEl.innerHTML = `
+        <div class="flex items-center justify-between text-xs">
+          <span>Berat Muat (${sj.sj_id}): <b>${formatNumber(sj.berat_muat_akt)} Kg</b></span>
+          <span>Selisih Otomatis: <b class="${selisih > 0 ? 'text-rose-400' : 'text-emerald-400'}">${formatNumber(selisih)} Kg (${persen}%)</b></span>
+        </div>
+      `;
+    }
+
+    function submitTerimaBarang(e) {
+      e.preventDefault();
+      const sjId = document.getElementById('tb-sj-id').value;
+      const tglBongkar = document.getElementById('tb-tgl-bongkar').value;
+      const beratBongkar = parseFloat(document.getElementById('tb-berat-bongkar').value);
+
+      const sj = state.suratJalans.find(item => item.sj_id === sjId);
+      if (!sj) return;
+
+      if (tglBongkar < sj.tanggal_muat_akt) {
+        showToast('Validasi Tanggal Gagal', 'Tanggal Bongkar tidak boleh lebih awal dari Tanggal Muat.', 'error');
+        return;
+      }
+
+      const selisih = sj.berat_muat_akt - beratBongkar;
+      const newTbId = `TB-2026-${String(state.terimaBarangs.length + 1).padStart(3, '0')}`;
+
+      state.terimaBarangs.unshift({
+        tb_id: newTbId,
+        sj_id: sjId,
+        tanggal_bongkar: tglBongkar,
+        berat_bongkar: beratBongkar,
+        selisih_barang: selisih
+      });
+
+      sj.status = 'Delivered';
+      const sr = state.salesRequests.find(item => item.sr_id === sj.sr_id);
+      if (sr) sr.status = 'Completed';
+
+      // Bebaskan status armada & sopir
+      const v = state.vehicles.find(item => item.mobil_id === sj.mobil_id);
+      if (v) v.status = 'Tersedia';
+      const d = state.drivers.find(item => item.sopir_id === sj.sopir_id);
+      if (d) d.status = 'Tersedia';
+
+      // Terbitkan Sales Invoice (SI) otomatis berdasarkan TB
+      if (sr) {
+        const newSiId = `SI-2026-${String(state.salesInvoices.length + 1).padStart(3, '0')}`;
+        state.salesInvoices.unshift({
+          si_id: newSiId,
+          tb_id: newTbId,
+          sr_id: sr.sr_id,
+          client_id: sr.client_id,
+          tanggal_invoice: tglBongkar,
+          total_tagihan: sr.nominal_est,
+          potong_deposit: sr.nominal_est,
+          piutang_client: 0,
+          status: 'Paid (via Deposit)'
+        });
+      }
+
+      // Aktifkan Purchase Invoice (PI) agar siap dibayar ke Ekspedisi
+      const pi = state.purchaseInvoices.find(item => item.sj_id === sjId);
+      if (pi) {
+        pi.tb_verified = true;
+        pi.status = 'Ready to Pay (Unpaid)';
+      }
+
+      showToast(
+        `Terima Barang ${newTbId} Terbit`,
+        `Selisih barang tercatat ${formatNumber(selisih)} Kg. Sales Invoice (SI) terbit & Purchase Invoice (PI) siap dibayarkan.`,
+        'success'
+      );
+      navigateTo('tb', 'list');
+    }
+
+    function renderTerimaBarangModule() {
+      const sub = state.activeSubMenu || 'list';
+
+      if (sub === 'create') {
+        document.getElementById('page-title').textContent = 'Terima Barang — Create (TB)';
+        const inTransitSjs = state.suratJalans.filter(sj => sj.status === 'In Transit');
+
+        if (inTransitSjs.length === 0) {
+          return `
+            <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl border border-slate-200 text-center space-y-3">
+              <h3 class="font-extrabold text-slate-900 text-lg">Tidak Ada Pengiriman In Transit</h3>
+              <p class="text-xs text-slate-500">Semua Surat Jalan telah memiliki dokumen Terima Barang (TB).</p>
+              <button onclick="navigateTo('tb', 'list')" class="px-5 py-2.5 rounded-xl bg-slate-900 text-amber-400 font-bold text-xs">Lihat Daftar Terima Barang</button>
+            </div>
+          `;
+        }
+
+        const firstSj = inTransitSjs[0];
+        return `
+          <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="pb-5 mb-6 border-b border-slate-100">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-600">Dokumen 4 • Terima Barang (TB)</span>
+              <h2 class="text-xl font-extrabold text-slate-900">Konfirmasi Bongkar &amp; Terima Barang</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Menghitung otomatis Selisih Barang (Berat Muat - Berat Bongkar), menerbitkan Sales Invoice (SI), dan mengaktifkan pembayaran PI.</p>
+            </div>
+
+            <form onsubmit="submitTerimaBarang(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Referensi Surat Jalan (SJ) *</label>
+                <select id="tb-sj-id" onchange="previewSelisihBarang()" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                  ${inTransitSjs.map(sj => `<option value="${sj.sj_id}">${sj.sj_id} — Muat ${formatNumber(sj.berat_muat_akt)} Kg (${getExpeditionName(sj.ekspedisi_id)})</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tanggal Bongkar Aktual *</label>
+                  <input type="date" id="tb-tgl-bongkar" value="2026-11-20" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Berat Bongkar Aktual (Kg) *</label>
+                  <input type="number" id="tb-berat-bongkar" oninput="previewSelisihBarang()" value="${firstSj.berat_muat_akt - 40}" min="1" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+              </div>
+
+              <div id="tb-selisih-preview" class="p-4 rounded-xl bg-slate-900 text-white"></div>
+
+              <div class="pt-2 flex justify-end gap-3">
+                <button type="button" onclick="navigateTo('tb', 'list')" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100">Lihat Daftar TB</button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-sm">
+                  Simpan Terima Barang (TB)
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+      }
+
+      document.getElementById('page-title').textContent = 'Terima Barang — List (TB)';
+      return `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Daftar Dokumen Terima Barang (TB)</h3>
+              <p class="text-xs text-slate-500">Rekonsiliasi otomatis Berat Muat vs Berat Bongkar (Selisih Barang)</p>
+            </div>
+            <button onclick="navigateTo('tb', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+              + Input Terima Barang
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-6">Kode TB / Ref SJ</th>
+                  <th class="py-3.5 px-6">Tanggal Bongkar</th>
+                  <th class="py-3.5 px-6 text-right">Berat Muat</th>
+                  <th class="py-3.5 px-6 text-right">Berat Bongkar</th>
+                  <th class="py-3.5 px-6 text-right">Selisih Barang (Otomatis)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                ${state.terimaBarangs.map(tb => {
+                  const sj = state.suratJalans.find(s => s.sj_id === tb.sj_id);
+                  const beratMuat = sj ? sj.berat_muat_akt : tb.berat_bongkar + tb.selisih_barang;
+                  return `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3.5 px-6">
+                        <p class="font-extrabold text-emerald-700 text-xs">${tb.tb_id}</p>
+                        <p class="text-[11px] text-slate-500">Ref: ${tb.sj_id}</p>
+                      </td>
+                      <td class="py-3.5 px-6 text-slate-700 text-xs font-semibold">${tb.tanggal_bongkar}</td>
+                      <td class="py-3.5 px-6 text-right text-xs font-semibold">${formatNumber(beratMuat)} Kg</td>
+                      <td class="py-3.5 px-6 text-right text-xs font-bold text-slate-900">${formatNumber(tb.berat_bongkar)} Kg</td>
+                      <td class="py-3.5 px-6 text-right">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${
+                          tb.selisih_barang > 0 ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-800'
+                        }">
+                          ${formatNumber(tb.selisih_barang)} Kg
+                        </span>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 8. MODULE 5: FINANCE & BILLING (SI, PI, MONITORING DEPOSIT)
+    // =========================================================================
+    function submitTopUpDeposit(e) {
+      e.preventDefault();
+      const clientId = document.getElementById('dep-client-id').value;
+      const nominal = parseFloat(document.getElementById('dep-nominal').value);
+      const ref = document.getElementById('dep-ref').value.trim();
+
+      const client = state.clients.find(c => c.client_id === clientId);
+      if (!client || nominal <= 0) return;
+
+      client.saldo_deposit += nominal;
+      state.depositLogs.unshift({
+        id: `DEP-${String(state.depositLogs.length + 1).padStart(3, '0')}`,
+        tanggal: '2026-11-19 22:00',
+        client_id: clientId,
+        tipe: 'Top-Up',
+        referensi: ref,
+        nominal: nominal,
+        saldo_akhir: client.saldo_deposit
+      });
+
+      showToast('Top-Up Deposit Berhasil', `Saldo ${client.nama_client} bertambah ${formatIDR(nominal)}.`, 'success');
+      renderApp();
+    }
+
+    function payPurchaseInvoice(piId) {
+      const pi = state.purchaseInvoices.find(item => item.pi_id === piId);
+      if (!pi) return;
+      if (!pi.tb_verified) {
+        showToast('Pembayaran Belum Diizinkan', 'Sesuai BRD, Purchase Invoice (PI) hanya dapat dibayarkan setelah dokumen Terima Barang (TB) terbit.', 'error');
+        return;
+      }
+      pi.status = 'Paid';
+      showToast('Purchase Invoice Lunas', `Pembayaran ${pi.pi_id} sebesar ${formatIDR(pi.hutang_ekspedisi)} kepada ${getExpeditionName(pi.ekspedisi_id)} selesai.`, 'success');
+      renderApp();
+    }
+
+    function renderFinanceModule() {
+      const sub = state.activeSubMenu || 'si';
+
+      if (sub === 'pi' && state.currentRole !== 'Client') {
+        document.getElementById('page-title').textContent = 'Finance & Billing — Purchase Invoice (PI)';
+        return `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+              <h3 class="font-bold text-slate-900 text-base">Purchase Invoice (PI) — Hutang kepada Ekspedisi</h3>
+              <p class="text-xs text-slate-500">Diterbitkan berdasarkan Surat Jalan (SJ) dan dibayarkan setelah dokumen Terima Barang (TB) terverifikasi</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                    <th class="py-3.5 px-6">Kode PI / Ref SJ</th>
+                    <th class="py-3.5 px-6">Vendor Ekspedisi</th>
+                    <th class="py-3.5 px-6">Status TB</th>
+                    <th class="py-3.5 px-6 text-right">Hutang Ekspedisi</th>
+                    <th class="py-3.5 px-6 text-right">Status &amp; Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                  ${state.purchaseInvoices.map(pi => `
+                    <tr class="hover:bg-slate-50/80">
+                      <td class="py-3.5 px-6">
+                        <p class="font-extrabold text-purple-700 text-xs">${pi.pi_id}</p>
+                        <p class="text-[11px] text-slate-500">Ref: ${pi.sj_id}</p>
+                      </td>
+                      <td class="py-3.5 px-6 font-bold text-slate-900">${getExpeditionName(pi.ekspedisi_id)}</td>
+                      <td class="py-3.5 px-6 text-xs">
+                        <span class="px-2 py-0.5 rounded font-bold ${pi.tb_verified ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                          ${pi.tb_verified ? 'TB Terverifikasi' : 'Menunggu TB'}
+                        </span>
+                      </td>
+                      <td class="py-3.5 px-6 text-right font-extrabold text-slate-900">${formatIDR(pi.hutang_ekspedisi)}</td>
+                      <td class="py-3.5 px-6 text-right">
+                        ${pi.status === 'Ready to Pay (Unpaid)' ? `
+                          <button onclick="payPurchaseInvoice('${pi.pi_id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+                            Bayar Sekarang
+                          </button>
+                        ` : `
+                          <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                            pi.status === 'Paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                          }">${pi.status}</span>
+                        `}
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+
+      if (sub === 'deposit') {
+        document.getElementById('page-title').textContent = 'Finance & Billing — Monitoring Deposit Client';
+        const visibleClients = state.currentRole === 'Client'
+          ? state.clients.filter(c => c.client_id === state.activeClientId)
+          : state.clients;
+        const visibleLogs = state.currentRole === 'Client'
+          ? state.depositLogs.filter(l => l.client_id === state.activeClientId)
+          : state.depositLogs;
+
+        return `
+          <div class="space-y-6">
+            ${state.currentRole !== 'Client' ? `
+              <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                <h3 class="font-bold text-slate-900 text-base mb-1">Top-Up Saldo Deposit Client</h3>
+                <p class="text-xs text-slate-500 mb-4">Catat penyetoran deposit dari Client agar dapat digunakan untuk pemotongan otomatis saat Sales Request (SR)</p>
+                <form onsubmit="submitTopUpDeposit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                  <div class="sm:col-span-4">
+                    <select id="dep-client-id" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+                      ${state.clients.map(c => `<option value="${c.client_id}">${c.nama_client} (Saldo: ${formatIDR(c.saldo_deposit)})</option>`).join('')}
+                    </select>
+                  </div>
+                  <div class="sm:col-span-3">
+                    <input type="number" id="dep-nominal" placeholder="Nominal Top-Up" min="500000" step="500000" value="15000000" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                  <div class="sm:col-span-3">
+                    <input type="text" id="dep-ref" placeholder="No. Referensi Transfer" value="Transfer BCA #9941" required class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                  </div>
+                  <div class="sm:col-span-2">
+                    <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm">
+                      + Top-Up Saldo
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ` : ''}
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              ${visibleClients.map(c => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span class="text-xs font-bold text-slate-400">${c.client_id} • ${getBranchName(c.cabang_id)}</span>
+                  <h4 class="font-bold text-slate-900 text-base mt-0.5">${c.nama_client}</h4>
+                  <p class="text-xl font-extrabold text-emerald-700 mt-2">${formatIDR(c.saldo_deposit)}</p>
+                  <p class="text-[11px] text-slate-500 mt-1">Sisa Saldo Deposit Aktif</p>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+              <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+                <h3 class="font-bold text-slate-900 text-base">Riwayat Mutasi Deposit Client</h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                      <th class="py-3.5 px-6">Tanggal</th>
+                      <th class="py-3.5 px-6">Client</th>
+                      <th class="py-3.5 px-6">Tipe &amp; Referensi</th>
+                      <th class="py-3.5 px-6 text-right">Mutasi Nominal</th>
+                      <th class="py-3.5 px-6 text-right">Saldo Akhir</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-sm">
+                    ${visibleLogs.map(l => `
+                      <tr class="hover:bg-slate-50/80">
+                        <td class="py-3.5 px-6 text-xs text-slate-500 font-mono">${l.tanggal}</td>
+                        <td class="py-3.5 px-6 font-bold text-slate-900 text-xs">${getClientName(l.client_id)}</td>
+                        <td class="py-3.5 px-6 text-xs">
+                          <span class="font-bold text-slate-800">${l.tipe}</span>
+                          <span class="text-slate-400 ml-1">(${l.referensi})</span>
+                        </td>
+                        <td class="py-3.5 px-6 text-right font-extrabold text-xs ${l.nominal >= 0 ? 'text-emerald-600' : 'text-rose-600'}">
+                          ${l.nominal >= 0 ? '+' : ''}${formatIDR(l.nominal)}
+                        </td>
+                        <td class="py-3.5 px-6 text-right font-bold text-slate-900 text-xs">${formatIDR(l.saldo_akhir)}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Default: Sales Invoice (SI)
+      document.getElementById('page-title').textContent = 'Finance & Billing — Sales Invoice (SI)';
+      const visibleInvoices = state.currentRole === 'Client'
+        ? state.salesInvoices.filter(si => si.client_id === state.activeClientId)
+        : state.salesInvoices;
+
+      return `
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+            <h3 class="font-bold text-slate-900 text-base">Sales Invoice (SI) — Penagihan &amp; Piutang Client</h3>
+            <p class="text-xs text-slate-500">Diterbitkan berdasarkan dokumen Terima Barang (TB) dengan rekonsiliasi saldo deposit Client</p>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  <th class="py-3.5 px-6">Kode SI / Ref TB</th>
+                  <th class="py-3.5 px-6">Client</th>
+                  <th class="py-3.5 px-6 text-right">Total Tagihan</th>
+                  <th class="py-3.5 px-6 text-right">Potong Deposit</th>
+                  <th class="py-3.5 px-6 text-right">Piutang Client (AR)</th>
+                  <th class="py-3.5 px-6 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm">
+                ${visibleInvoices.map(si => `
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="py-3.5 px-6">
+                      <p class="font-extrabold text-amber-700 text-xs">${si.si_id}</p>
+                      <p class="text-[11px] text-slate-500">Ref: ${si.tb_id} (${si.tanggal_invoice})</p>
+                    </td>
+                    <td class="py-3.5 px-6 font-bold text-slate-900">${getClientName(si.client_id)}</td>
+                    <td class="py-3.5 px-6 text-right font-semibold text-slate-800 text-xs">${formatIDR(si.total_tagihan)}</td>
+                    <td class="py-3.5 px-6 text-right font-semibold text-emerald-700 text-xs">${formatIDR(si.potong_deposit)}</td>
+                    <td class="py-3.5 px-6 text-right font-extrabold text-xs ${si.piutang_client > 0 ? 'text-rose-600' : 'text-slate-600'}">${formatIDR(si.piutang_client)}</td>
+                    <td class="py-3.5 px-6 text-right">
+                      <span class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                        si.piutang_client > 0 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'
+                      }">${si.status}</span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
     // 9. MODULE 6: MASTER DATA (COMPANY, CABANG, CLIENT, EKSPEDISI, MOBIL, SOPIR, USER)
     // =========================================================================
     function submitCompanyProfile(e) {
