@@ -6,6 +6,7 @@
   <title>LogiTrack ERP — Sistem Manajemen Logistik & Pengiriman Barang</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -223,6 +224,7 @@
       dashboardPeriod: 'Monthly', // 'Daily' | 'Weekly' | 'Monthly' | 'Yearly'
       dashboardBranchFilter: 'ALL', // 'ALL' | 'CAB-01' | 'CAB-02' | 'CAB-03'
       srStatusFilter: 'All',
+      searchQuery: '',
 
       // 1. Master Company (Profil Perusahaan User)
       company: {
@@ -569,6 +571,302 @@
     }
 
     // =========================================================================
+    // 2B. SEARCH & EXPORT TO .XLSX UTILITIES
+    // =========================================================================
+    function executeTableSearch() {
+      const input = document.getElementById('table-search-input');
+      state.searchQuery = input ? input.value.trim() : '';
+      renderApp();
+    }
+
+    function resetTableSearch() {
+      state.searchQuery = '';
+      renderApp();
+    }
+
+    function matchesSearch(fields) {
+      if (!state.searchQuery) return true;
+      const q = state.searchQuery.toLowerCase();
+      return fields.some(val => String(val ?? '').toLowerCase().includes(q));
+    }
+
+    function renderTableToolbar(exportKey, placeholder = 'Cari data pada tabel...') {
+      return `
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="flex items-center gap-1.5">
+            <input
+              type="text"
+              id="table-search-input"
+              value="${state.searchQuery.replace(/"/g, '&quot;')}"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();executeTableSearch();}"
+              placeholder="${placeholder}"
+              class="w-44 sm:w-56 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+            />
+            <button
+              type="button"
+              onclick="executeTableSearch()"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs shadow-xs transition-all"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" />
+              </svg>
+              <span>Search</span>
+            </button>
+            ${state.searchQuery ? `
+              <button
+                type="button"
+                onclick="resetTableSearch()"
+                title="Reset pencarian"
+                class="px-2.5 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs"
+              >
+                Reset
+              </button>
+            ` : ''}
+          </div>
+
+          <button
+            type="button"
+            onclick="exportTableToXlsx('${exportKey}')"
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-xs transition-all"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            <span>Download .xlsx</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function exportTableToXlsx(exportKey) {
+      if (typeof XLSX === 'undefined') {
+        showToast('Library Excel Belum Siap', 'Gagal memuat pustaka SheetJS (.xlsx). Periksa koneksi internet Anda.', 'error');
+        return;
+      }
+
+      let rows = [];
+      let fileName = `LogiTrack_${exportKey}_2026-11-20.xlsx`;
+      let sheetName = 'Data';
+      const p = state.dashboardPeriod;
+      const bFilter = state.dashboardBranchFilter;
+
+      if (exportKey === 'dashboard_armada') {
+        sheetName = `Monitoring_Mobil_${p}`;
+        fileName = `Laporan_Monitoring_Mobil_${p}.xlsx`;
+        const vehicles = (bFilter === 'ALL' ? state.vehicles : state.vehicles.filter(v => v.cabang_id === bFilter))
+          .filter(v => matchesSearch([v.mobil_id, v.no_mobil, v.nama_mobil, v.status, getBranchName(v.cabang_id)]));
+        rows = vehicles.map(v => ({
+          'ID Mobil': v.mobil_id,
+          'No. Polisi': v.no_mobil,
+          'Nama Mobil': v.nama_mobil,
+          'Cabang': getBranchName(v.cabang_id),
+          'Status Armada': v.status,
+          [`Jumlah Trip (${p})`]: v.trips[p],
+          [`Tonase Kiriman (${p}) [Ton]`]: v.tonase[p]
+        }));
+      } else if (exportKey === 'dashboard_client') {
+        sheetName = 'Deposit_Piutang_Client';
+        fileName = 'Laporan_Deposit_dan_Piutang_Client.xlsx';
+        const clients = (bFilter === 'ALL' ? state.clients : state.clients.filter(c => c.cabang_id === bFilter))
+          .filter(c => matchesSearch([c.client_id, c.nama_client, getBranchName(c.cabang_id)]));
+        rows = clients.map(c => {
+          const piutang = state.salesInvoices.filter(si => si.client_id === c.client_id).reduce((s, si) => s + si.piutang_client, 0);
+          return {
+            'ID Client': c.client_id,
+            'Nama Client': c.nama_client,
+            'Cabang': getBranchName(c.cabang_id),
+            'Sisa Saldo Deposit (IDR)': c.saldo_deposit,
+            'Total Piutang AR (IDR)': piutang
+          };
+        });
+      } else if (exportKey === 'sr_list') {
+        sheetName = 'Sales_Request';
+        fileName = 'Daftar_Sales_Request_SR.xlsx';
+        const list = (state.currentRole === 'Client' ? state.salesRequests.filter(sr => sr.client_id === state.activeClientId) : state.salesRequests)
+          .filter(sr => matchesSearch([sr.sr_id, sr.cabang_id, getClientName(sr.client_id), sr.tanggal_muat, sr.lokasi_pengambilan, sr.lokasi_tujuan, sr.status]));
+        rows = list.map(sr => ({
+          'Kode SR': sr.sr_id,
+          'Cabang': getBranchName(sr.cabang_id),
+          'Client': getClientName(sr.client_id),
+          'Tanggal Muat': sr.tanggal_muat,
+          'Lokasi Pengambilan': sr.lokasi_pengambilan,
+          'Lokasi Tujuan': sr.lokasi_tujuan,
+          'Berat Muat (Kg)': sr.berat_muat_est,
+          'Harga per Kg (IDR)': sr.harga_per_kg,
+          'Total Biaya (IDR)': sr.nominal_est,
+          'Status': sr.status
+        }));
+      } else if (exportKey === 'sj_list') {
+        sheetName = 'Surat_Jalan';
+        fileName = 'Daftar_Surat_Jalan_dan_Uang_Jalan.xlsx';
+        const list = state.suratJalans.filter(sj =>
+          matchesSearch([sj.sj_id, sj.sr_id, getExpeditionName(sj.ekspedisi_id), getVehicleLabel(sj.mobil_id), getDriverName(sj.sopir_id), sj.status])
+        );
+        rows = list.map(sj => ({
+          'Kode SJ': sj.sj_id,
+          'Ref SR': sj.sr_id,
+          'Ekspedisi': getExpeditionName(sj.ekspedisi_id),
+          'Armada Mobil': getVehicleLabel(sj.mobil_id),
+          'Sopir Aktif': getDriverName(sj.sopir_id),
+          'Jumlah Pergantian Sopir': sj.riwayat_sopir.length,
+          'Tanggal Muat Aktual': sj.tanggal_muat_akt,
+          'Berat Muat Aktual (Kg)': sj.berat_muat_akt,
+          'Kode Uang Jalan': sj.uj_id,
+          'Nominal Uang Jalan (IDR)': sj.uang_jalan,
+          'Status': sj.status
+        }));
+      } else if (exportKey === 'tb_list') {
+        sheetName = 'Terima_Barang';
+        fileName = 'Daftar_Terima_Barang_TB.xlsx';
+        const list = state.terimaBarangs.filter(tb => matchesSearch([tb.tb_id, tb.sj_id, tb.tanggal_bongkar]));
+        rows = list.map(tb => {
+          const sj = state.suratJalans.find(s => s.sj_id === tb.sj_id);
+          const beratMuat = sj ? sj.berat_muat_akt : tb.berat_bongkar + tb.selisih_barang;
+          return {
+            'Kode TB': tb.tb_id,
+            'Ref SJ': tb.sj_id,
+            'Tanggal Bongkar': tb.tanggal_bongkar,
+            'Berat Muat (Kg)': beratMuat,
+            'Berat Bongkar (Kg)': tb.berat_bongkar,
+            'Selisih Barang (Kg)': tb.selisih_barang
+          };
+        });
+      } else if (exportKey === 'finance_si') {
+        sheetName = 'Sales_Invoice';
+        fileName = 'Daftar_Sales_Invoice_SI.xlsx';
+        const list = (state.currentRole === 'Client' ? state.salesInvoices.filter(si => si.client_id === state.activeClientId) : state.salesInvoices)
+          .filter(si => matchesSearch([si.si_id, si.tb_id, getClientName(si.client_id), si.status]));
+        rows = list.map(si => ({
+          'Kode SI': si.si_id,
+          'Ref TB': si.tb_id,
+          'Tanggal Invoice': si.tanggal_invoice,
+          'Client': getClientName(si.client_id),
+          'Total Tagihan (IDR)': si.total_tagihan,
+          'Potong Deposit (IDR)': si.potong_deposit,
+          'Piutang Client AR (IDR)': si.piutang_client,
+          'Status': si.status
+        }));
+      } else if (exportKey === 'finance_pi') {
+        sheetName = 'Purchase_Invoice';
+        fileName = 'Daftar_Purchase_Invoice_PI.xlsx';
+        const list = state.purchaseInvoices.filter(pi => matchesSearch([pi.pi_id, pi.sj_id, getExpeditionName(pi.ekspedisi_id), pi.status]));
+        rows = list.map(pi => ({
+          'Kode PI': pi.pi_id,
+          'Ref SJ': pi.sj_id,
+          'Tanggal PI': pi.tanggal_pi,
+          'Vendor Ekspedisi': getExpeditionName(pi.ekspedisi_id),
+          'Status Verifikasi TB': pi.tb_verified ? 'TB Terverifikasi' : 'Menunggu TB',
+          'Hutang Ekspedisi (IDR)': pi.hutang_ekspedisi,
+          'Status Pembayaran': pi.status
+        }));
+      } else if (exportKey === 'finance_deposit') {
+        sheetName = 'Mutasi_Deposit';
+        fileName = 'Riwayat_Mutasi_Deposit_Client.xlsx';
+        const list = (state.currentRole === 'Client' ? state.depositLogs.filter(l => l.client_id === state.activeClientId) : state.depositLogs)
+          .filter(l => matchesSearch([l.id, l.tanggal, getClientName(l.client_id), l.tipe, l.referensi]));
+        rows = list.map(l => ({
+          'ID Mutasi': l.id,
+          'Tanggal': l.tanggal,
+          'Client': getClientName(l.client_id),
+          'Tipe Transaksi': l.tipe,
+          'Referensi': l.referensi,
+          'Nominal Mutasi (IDR)': l.nominal,
+          'Saldo Akhir (IDR)': l.saldo_akhir
+        }));
+      } else if (exportKey === 'master_cabang') {
+        sheetName = 'Master_Cabang';
+        fileName = 'Master_Data_Cabang.xlsx';
+        rows = state.branches
+          .filter(b => matchesSearch([b.cabang_id, b.kode_cabang, b.nama_cabang, b.kota, b.kepala_cabang]))
+          .map(b => ({
+            'ID Cabang': b.cabang_id,
+            'Kode': b.kode_cabang,
+            'Nama Cabang': b.nama_cabang,
+            'Kota': b.kota,
+            'Kepala Cabang': b.kepala_cabang,
+            'Telepon': b.telepon,
+            'Status': b.status
+          }));
+      } else if (exportKey === 'master_client') {
+        sheetName = 'Master_Client';
+        fileName = 'Master_Data_Client.xlsx';
+        rows = state.clients
+          .filter(c => matchesSearch([c.client_id, c.nama_client, c.pic, c.telepon, c.alamat, getBranchName(c.cabang_id)]))
+          .map(c => ({
+            'ID Client': c.client_id,
+            'Nama Client': c.nama_client,
+            'Cabang': getBranchName(c.cabang_id),
+            'PIC': c.pic,
+            'Telepon': c.telepon,
+            'Alamat': c.alamat,
+            'Saldo Deposit (IDR)': c.saldo_deposit
+          }));
+      } else if (exportKey === 'master_ekspedisi') {
+        sheetName = 'Master_Ekspedisi';
+        fileName = 'Master_Data_Ekspedisi.xlsx';
+        rows = state.expeditions
+          .filter(e => matchesSearch([e.ekspedisi_id, e.nama_ekspedisi, e.pic, e.telepon, e.wilayah]))
+          .map(e => ({
+            'ID Ekspedisi': e.ekspedisi_id,
+            'Nama Ekspedisi': e.nama_ekspedisi,
+            'PIC': e.pic,
+            'Telepon': e.telepon,
+            'Wilayah Layanan': e.wilayah,
+            'Status': e.status
+          }));
+      } else if (exportKey === 'master_mobil') {
+        sheetName = 'Master_Mobil';
+        fileName = 'Master_Data_Mobil.xlsx';
+        rows = state.vehicles
+          .filter(v => matchesSearch([v.mobil_id, v.nama_mobil, v.no_mobil, getBranchName(v.cabang_id), v.status]))
+          .map(v => ({
+            'ID Mobil': v.mobil_id,
+            'Nama Mobil': v.nama_mobil,
+            'No. Polisi': v.no_mobil,
+            'Cabang': getBranchName(v.cabang_id),
+            'Status Armada': v.status
+          }));
+      } else if (exportKey === 'master_sopir') {
+        sheetName = 'Master_Sopir';
+        fileName = 'Master_Data_Sopir.xlsx';
+        rows = state.drivers
+          .filter(d => matchesSearch([d.sopir_id, d.nama_sopir, d.no_telepon, d.no_sim, d.status]))
+          .map(d => ({
+            'ID Sopir': d.sopir_id,
+            'Nama Sopir': d.nama_sopir,
+            'No. Telepon': d.no_telepon,
+            'No. SIM': d.no_sim,
+            'Status': d.status
+          }));
+      } else if (exportKey === 'master_user') {
+        sheetName = 'Master_User';
+        fileName = 'Master_Data_User.xlsx';
+        rows = state.users
+          .filter(u => matchesSearch([u.user_id, u.nama_user, u.email, u.role, getBranchName(u.cabang_id)]))
+          .map(u => ({
+            'ID User': u.user_id,
+            'Nama User': u.nama_user,
+            'Email': u.email,
+            'Role': u.role,
+            'Penempatan Cabang': getBranchName(u.cabang_id),
+            'Status': u.status
+          }));
+      }
+
+      if (!rows || rows.length === 0) {
+        showToast('Tidak Ada Data', 'Tidak ada baris data yang cocok untuk diunduh ke .xlsx.', 'warning');
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+      XLSX.writeFile(workbook, fileName);
+
+      showToast('Download .xlsx Berhasil', `File "${fileName}" (${rows.length} baris) telah diunduh.`, 'success');
+    }
+
+    // =========================================================================
     // 3. NAVIGATION TREE (HEADER -> SUBNAVIGATION) & ROLE SWITCHING
     // =========================================================================
     const navigationTree = [
@@ -656,6 +954,7 @@
     function navigateTo(menuId, subMenuId) {
       state.activeMenu = menuId;
       state.expandedMenus[menuId] = true;
+      state.searchQuery = '';
 
       const menuDef = navigationTree.find(m => m.id === menuId);
       if (menuDef) {
@@ -924,10 +1223,24 @@
         </div>
 
         <!-- Detailed Owner Tables: Monitoring Mobil & Deposit/Piutang/Hutang -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-extrabold text-slate-900">Filter Pencarian &amp; Ekspor Laporan Excel (.xlsx)</p>
+            <p class="text-[11px] text-slate-500">Cari armada atau Client pada tabel di bawah, lalu unduh laporan dalam format .xlsx</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            ${renderTableToolbar('dashboard_armada', 'Cari mobil / client...')}
+            <button type="button" onclick="exportTableToXlsx('dashboard_client')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-extrabold text-xs shadow-xs">
+              <span>Export Client .xlsx</span>
+            </button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h3 class="font-bold text-slate-900 text-sm">1. Laporan Monitoring Mobil (${p})</h3>
+              <span class="text-[11px] font-semibold text-slate-400">Armada</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
@@ -940,7 +1253,9 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  ${filteredVehicles.map(v => `
+                  ${filteredVehicles
+                    .filter(v => matchesSearch([v.mobil_id, v.no_mobil, v.nama_mobil, v.status, getBranchName(v.cabang_id)]))
+                    .map(v => `
                     <tr>
                       <td class="py-3 px-4">
                         <p class="font-bold text-slate-900">${v.no_mobil} <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">${v.cabang_id}</span></p>
@@ -961,8 +1276,9 @@
           </div>
 
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <h3 class="font-bold text-slate-900 text-sm">2. Sisa Deposit &amp; Piutang per Client</h3>
+              <span class="text-[11px] font-semibold text-slate-400">Keuangan Client</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs">
@@ -974,7 +1290,9 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                  ${filteredClients.map(c => {
+                  ${filteredClients
+                    .filter(c => matchesSearch([c.client_id, c.nama_client, getBranchName(c.cabang_id)]))
+                    .map(c => {
                     const piutang = state.salesInvoices
                       .filter(si => si.client_id === c.client_id)
                       .reduce((s, si) => s + si.piutang_client, 0);
@@ -1231,9 +1549,12 @@
       }
 
       document.getElementById('page-title').textContent = 'Sales Request — List (SR)';
-      const list = state.currentRole === 'Client'
+      const rawList = state.currentRole === 'Client'
         ? state.salesRequests.filter(sr => sr.client_id === state.activeClientId)
         : state.salesRequests;
+      const list = rawList.filter(sr =>
+        matchesSearch([sr.sr_id, sr.cabang_id, getClientName(sr.client_id), sr.tanggal_muat, sr.lokasi_pengambilan, sr.lokasi_tujuan, sr.status])
+      );
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
@@ -1242,9 +1563,12 @@
               <h3 class="font-bold text-slate-900 text-base">Daftar Sales Request (SR)</h3>
               <p class="text-xs text-slate-500">Seluruh permintaan pengiriman dari Client beserta hasil perkalian Berat × Harga</p>
             </div>
-            <button onclick="navigateTo('sr', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
-              + Buat SR Baru
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              ${renderTableToolbar('sr_list', 'Cari kode SR, client, rute...')}
+              <button onclick="navigateTo('sr', 'create')" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+                + Buat SR Baru
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -1260,7 +1584,9 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                ${list.map(sr => `
+                ${list.length === 0 ? `
+                  <tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Tidak ada data Sales Request yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                ` : list.map(sr => `
                   <tr class="hover:bg-slate-50/80">
                     <td class="py-3.5 px-5">
                       <p class="font-extrabold text-amber-700 text-xs">${sr.sr_id}</p>
@@ -1536,6 +1862,10 @@
       }
 
       document.getElementById('page-title').textContent = 'Surat Jalan & Uang Jalan — List (SJ + UJ)';
+      const filteredSjs = state.suratJalans.filter(sj =>
+        matchesSearch([sj.sj_id, sj.sr_id, getExpeditionName(sj.ekspedisi_id), getVehicleLabel(sj.mobil_id), getDriverName(sj.sopir_id), sj.status])
+      );
+
       return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
@@ -1543,9 +1873,12 @@
               <h3 class="font-bold text-slate-900 text-base">Daftar Surat Jalan (SJ) &amp; Uang Jalan (UJ)</h3>
               <p class="text-xs text-slate-500">Mendukung pergantian sopir saat pengiriman berlangsung dengan pencatatan Driver Change Log</p>
             </div>
-            <button onclick="navigateTo('sj', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
-              + Buat SJ Baru
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              ${renderTableToolbar('sj_list', 'Cari kode SJ, sopir, nopol...')}
+              <button onclick="navigateTo('sj', 'create')" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+                + Buat SJ Baru
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -1561,7 +1894,9 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                ${state.suratJalans.map(sj => `
+                ${filteredSjs.length === 0 ? `
+                  <tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Tidak ada data Surat Jalan yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                ` : filteredSjs.map(sj => `
                   <tr class="hover:bg-slate-50/80">
                     <td class="py-3.5 px-5">
                       <p class="font-extrabold text-sky-700 text-xs">${sj.sj_id}</p>
@@ -1750,6 +2085,8 @@
       }
 
       document.getElementById('page-title').textContent = 'Terima Barang — List (TB)';
+      const filteredTbs = state.terimaBarangs.filter(tb => matchesSearch([tb.tb_id, tb.sj_id, tb.tanggal_bongkar]));
+
       return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div class="px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
@@ -1757,9 +2094,12 @@
               <h3 class="font-bold text-slate-900 text-base">Daftar Dokumen Terima Barang (TB)</h3>
               <p class="text-xs text-slate-500">Rekonsiliasi otomatis Berat Muat vs Berat Bongkar (Selisih Barang)</p>
             </div>
-            <button onclick="navigateTo('tb', 'create')" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
-              + Input Terima Barang
-            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              ${renderTableToolbar('tb_list', 'Cari kode TB, ref SJ...')}
+              <button onclick="navigateTo('tb', 'create')" class="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-xs">
+                + Input Terima Barang
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -1774,7 +2114,9 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                ${state.terimaBarangs.map(tb => {
+                ${filteredTbs.length === 0 ? `
+                  <tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">Tidak ada data Terima Barang yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                ` : filteredTbs.map(tb => {
                   const sj = state.suratJalans.find(s => s.sj_id === tb.sj_id);
                   const beratMuat = sj ? sj.berat_muat_akt : tb.berat_bongkar + tb.selisih_barang;
                   return `
@@ -1847,11 +2189,18 @@
 
       if (sub === 'pi' && state.currentRole !== 'Client') {
         document.getElementById('page-title').textContent = 'Finance & Billing — Purchase Invoice (PI)';
+        const filteredPis = state.purchaseInvoices.filter(pi =>
+          matchesSearch([pi.pi_id, pi.sj_id, getExpeditionName(pi.ekspedisi_id), pi.status])
+        );
+
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Purchase Invoice (PI) — Hutang kepada Ekspedisi</h3>
-              <p class="text-xs text-slate-500">Diterbitkan berdasarkan Surat Jalan (SJ) dan dibayarkan setelah dokumen Terima Barang (TB) terverifikasi</p>
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Purchase Invoice (PI) — Hutang kepada Ekspedisi</h3>
+                <p class="text-xs text-slate-500">Diterbitkan berdasarkan Surat Jalan (SJ) dan dibayarkan setelah dokumen Terima Barang (TB) terverifikasi</p>
+              </div>
+              ${renderTableToolbar('finance_pi', 'Cari kode PI, ekspedisi...')}
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse">
@@ -1865,7 +2214,9 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.purchaseInvoices.map(pi => `
+                  ${filteredPis.length === 0 ? `
+                    <tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">Tidak ada data Purchase Invoice yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                  ` : filteredPis.map(pi => `
                     <tr class="hover:bg-slate-50/80">
                       <td class="py-3.5 px-6">
                         <p class="font-extrabold text-purple-700 text-xs">${pi.pi_id}</p>
@@ -1903,9 +2254,10 @@
         const visibleClients = state.currentRole === 'Client'
           ? state.clients.filter(c => c.client_id === state.activeClientId)
           : state.clients;
-        const visibleLogs = state.currentRole === 'Client'
+        const visibleLogs = (state.currentRole === 'Client'
           ? state.depositLogs.filter(l => l.client_id === state.activeClientId)
-          : state.depositLogs;
+          : state.depositLogs)
+          .filter(l => matchesSearch([l.id, l.tanggal, getClientName(l.client_id), l.tipe, l.referensi]));
 
         return `
           <div class="space-y-6">
@@ -1946,8 +2298,9 @@
             </div>
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-              <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
+              <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
                 <h3 class="font-bold text-slate-900 text-base">Riwayat Mutasi Deposit Client</h3>
+                ${renderTableToolbar('finance_deposit', 'Cari mutasi, client, referensi...')}
               </div>
               <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -1961,7 +2314,9 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100 text-sm">
-                    ${visibleLogs.map(l => `
+                    ${visibleLogs.length === 0 ? `
+                      <tr><td colspan="5" class="py-8 text-center text-xs text-slate-400">Tidak ada riwayat mutasi yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                    ` : visibleLogs.map(l => `
                       <tr class="hover:bg-slate-50/80">
                         <td class="py-3.5 px-6 text-xs text-slate-500 font-mono">${l.tanggal}</td>
                         <td class="py-3.5 px-6 font-bold text-slate-900 text-xs">${getClientName(l.client_id)}</td>
@@ -1985,15 +2340,19 @@
 
       // Default: Sales Invoice (SI)
       document.getElementById('page-title').textContent = 'Finance & Billing — Sales Invoice (SI)';
-      const visibleInvoices = state.currentRole === 'Client'
+      const visibleInvoices = (state.currentRole === 'Client'
         ? state.salesInvoices.filter(si => si.client_id === state.activeClientId)
-        : state.salesInvoices;
+        : state.salesInvoices)
+        .filter(si => matchesSearch([si.si_id, si.tb_id, getClientName(si.client_id), si.status]));
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-            <h3 class="font-bold text-slate-900 text-base">Sales Invoice (SI) — Penagihan &amp; Piutang Client</h3>
-            <p class="text-xs text-slate-500">Diterbitkan berdasarkan dokumen Terima Barang (TB) dengan rekonsiliasi saldo deposit Client</p>
+          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Sales Invoice (SI) — Penagihan &amp; Piutang Client</h3>
+              <p class="text-xs text-slate-500">Diterbitkan berdasarkan dokumen Terima Barang (TB) dengan rekonsiliasi saldo deposit Client</p>
+            </div>
+            ${renderTableToolbar('finance_si', 'Cari kode SI, client, status...')}
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -2008,7 +2367,9 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                ${visibleInvoices.map(si => `
+                ${visibleInvoices.length === 0 ? `
+                  <tr><td colspan="6" class="py-8 text-center text-xs text-slate-400">Tidak ada data Sales Invoice yang sesuai dengan pencarian "${state.searchQuery}".</td></tr>
+                ` : visibleInvoices.map(si => `
                   <tr class="hover:bg-slate-50/80">
                     <td class="py-3.5 px-6">
                       <p class="font-extrabold text-amber-700 text-xs">${si.si_id}</p>
@@ -2274,14 +2635,18 @@
       // 4. MASTER CABANG (3 CABANG DARI 1 PERUSAHAAN)
       if (sub === 'cabang') {
         document.getElementById('page-title').textContent = 'Master Data — Master Cabang';
+        const filteredBranches = state.branches.filter(b =>
+          matchesSearch([b.cabang_id, b.kode_cabang, b.nama_cabang, b.kota, b.kepala_cabang])
+        );
+
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 class="font-bold text-slate-900 text-base">Master Cabang (${state.company.nama_perusahaan})</h3>
                 <p class="text-xs text-slate-500">Pengelolaan unit cabang operasional agar Owner dapat memantau laporan per cabang maupun konsolidasi</p>
               </div>
-              <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold">Total: ${state.branches.length} Cabang</span>
+              ${renderTableToolbar('master_cabang', 'Cari kode, nama cabang, kota...')}
             </div>
 
             <form onsubmit="submitNewBranch(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2319,7 +2684,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.branches.map(b => `
+                  ${filteredBranches.map(b => `
                     <tr class="hover:bg-slate-50/80">
                       <td class="py-3.5 px-6">
                         <span class="px-2 py-0.5 rounded bg-slate-900 text-amber-400 font-bold text-xs">${b.kode_cabang}</span>
@@ -2346,11 +2711,18 @@
       // 2. MASTER CLIENT
       if (sub === 'client') {
         document.getElementById('page-title').textContent = 'Master Data — Master Client';
+        const filteredClients = state.clients.filter(c =>
+          matchesSearch([c.client_id, c.nama_client, c.pic, c.telepon, c.alamat, getBranchName(c.cabang_id)])
+        );
+
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Master Data Client</h3>
-              <p class="text-xs text-slate-500">Registrasi dan pengelolaan data pelanggan pengirim barang beserta cabang terdaftar dan saldo deposit</p>
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Master Data Client</h3>
+                <p class="text-xs text-slate-500">Registrasi dan pengelolaan data pelanggan pengirim barang beserta cabang terdaftar dan saldo deposit</p>
+              </div>
+              ${renderTableToolbar('master_client', 'Cari client, PIC, cabang...')}
             </div>
 
             <form onsubmit="submitNewClient(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2393,7 +2765,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.clients.map(c => `
+                  ${filteredClients.map(c => `
                     <tr class="hover:bg-slate-50/80">
                       <td class="py-3.5 px-6 font-bold text-amber-700 text-xs">${c.client_id}</td>
                       <td class="py-3.5 px-6">
@@ -2418,11 +2790,18 @@
       // 3. MASTER EKSPEDISI
       if (sub === 'ekspedisi') {
         document.getElementById('page-title').textContent = 'Master Data — Master Ekspedisi';
+        const filteredExpeditions = state.expeditions.filter(e =>
+          matchesSearch([e.ekspedisi_id, e.nama_ekspedisi, e.pic, e.telepon, e.wilayah])
+        );
+
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Master Data Ekspedisi (Mitra / Vendor)</h3>
-              <p class="text-xs text-slate-500">Daftar mitra vendor pengangkutan yang bekerja sama dalam pelaksanaan Surat Jalan &amp; Purchase Invoice</p>
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Master Data Ekspedisi (Mitra / Vendor)</h3>
+                <p class="text-xs text-slate-500">Daftar mitra vendor pengangkutan yang bekerja sama dalam pelaksanaan Surat Jalan &amp; Purchase Invoice</p>
+              </div>
+              ${renderTableToolbar('master_ekspedisi', 'Cari ekspedisi, PIC, wilayah...')}
             </div>
 
             <form onsubmit="submitNewExpedition(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2457,7 +2836,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.expeditions.map(e => `
+                  ${filteredExpeditions.map(e => `
                     <tr class="hover:bg-slate-50/80">
                       <td class="py-3.5 px-6 font-bold text-slate-600 text-xs">${e.ekspedisi_id}</td>
                       <td class="py-3.5 px-6 font-bold text-slate-900">${e.nama_ekspedisi}</td>
@@ -2481,13 +2860,20 @@
       // 5. MASTER USER (SUPER ADMIN & ADMIN)
       if (sub === 'user') {
         document.getElementById('page-title').textContent = 'Master Data — Master User & Hak Akses';
+        const filteredUsers = state.users.filter(u =>
+          matchesSearch([u.user_id, u.nama_user, u.email, u.role, getBranchName(u.cabang_id)])
+        );
+
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Master User &amp; Manajemen Role</h3>
-              <p class="text-xs text-slate-500">
-                Pengaturan akses aplikasi: <b>Super Admin</b> (Full Akses termasuk Executive Dashboard) dan <b>Admin</b> (Operasional cabang, tanpa akses Executive Dashboard).
-              </p>
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Master User &amp; Manajemen Role</h3>
+                <p class="text-xs text-slate-500">
+                  Pengaturan akses aplikasi: <b>Super Admin</b> (Full Akses termasuk Executive Dashboard) dan <b>Admin</b> (Operasional cabang, tanpa akses Executive Dashboard).
+                </p>
+              </div>
+              ${renderTableToolbar('master_user', 'Cari nama user, email, role...')}
             </div>
 
             <form onsubmit="submitNewUser(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2528,7 +2914,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.users.map(u => {
+                  ${filteredUsers.map(u => {
                     const roleBadge = u.role === 'Owner'
                       ? 'bg-slate-900 text-amber-400'
                       : u.role === 'Super Admin'
@@ -2570,12 +2956,18 @@
       // 6. MASTER SOPIR
       if (sub === 'sopir') {
         document.getElementById('page-title').textContent = 'Master Data — Master Sopir';
+        const filteredDrivers = state.drivers.filter(d =>
+          matchesSearch([d.sopir_id, d.nama_sopir, d.no_telepon, d.no_sim, d.status])
+        );
 
         return `
           <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-              <h3 class="font-bold text-slate-900 text-base">Master Data Sopir</h3>
-              <p class="text-xs text-slate-500">Tambah dan kelola data pengemudi terdaftar untuk penugasan Surat Jalan</p>
+            <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Master Data Sopir</h3>
+                <p class="text-xs text-slate-500">Tambah dan kelola data pengemudi terdaftar untuk penugasan Surat Jalan</p>
+              </div>
+              ${renderTableToolbar('master_sopir', 'Cari nama sopir, SIM, status...')}
             </div>
 
             <form onsubmit="submitNewDriver(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2607,7 +2999,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
-                  ${state.drivers.map(d => `
+                  ${filteredDrivers.map(d => `
                     <tr class="hover:bg-slate-50/80">
                       <td class="py-3.5 px-6 font-bold text-slate-600 text-xs">${d.sopir_id}</td>
                       <td class="py-3.5 px-6 font-bold text-slate-900">${d.nama_sopir}</td>
@@ -2631,12 +3023,18 @@
 
       // 7. MASTER MOBIL
       document.getElementById('page-title').textContent = 'Master Data — Master Mobil';
+      const filteredVehiclesMaster = state.vehicles.filter(v =>
+        matchesSearch([v.mobil_id, v.nama_mobil, v.no_mobil, getBranchName(v.cabang_id), v.status])
+      );
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70">
-            <h3 class="font-bold text-slate-900 text-base">Master Data Mobil</h3>
-            <p class="text-xs text-slate-500">Tambah dan kelola master kendaraan (nama mobil, nomor polisi, dan penempatan cabang)</p>
+          <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Master Data Mobil</h3>
+              <p class="text-xs text-slate-500">Tambah dan kelola master kendaraan (nama mobil, nomor polisi, dan penempatan cabang)</p>
+            </div>
+            ${renderTableToolbar('master_mobil', 'Cari nama mobil, nopol, cabang...')}
           </div>
 
           <form onsubmit="submitNewVehicle(event)" class="p-5 border-b border-slate-200 bg-slate-50/30 grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -2670,7 +3068,7 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 text-sm">
-                ${state.vehicles.map(v => `
+                ${filteredVehiclesMaster.map(v => `
                   <tr class="hover:bg-slate-50/80">
                     <td class="py-3.5 px-6 font-bold text-slate-600 text-xs">${v.mobil_id}</td>
                     <td class="py-3.5 px-6 font-bold text-slate-900">${v.nama_mobil}</td>
